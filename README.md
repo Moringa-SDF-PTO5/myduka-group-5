@@ -1,20 +1,22 @@
+# MyDuka App
+
 To create a README.md file for your main repository that serves as a template structure, you can include sections that provide essential information about your project, its purpose, setup instructions, and usage guidelines. Here’s a basic template you can start with:
 
 ### README.md Template
 
-```markdown
+````markdown
 # Project Name
 
 Brief description of your project.
 
 ## Table of Contents
 
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+-   [Project Overview](#project-overview)
+-   [Features](#features)
+-   [Installation](#installation)
+-   [Usage](#usage)
+-   [Contributing](#contributing)
+-   [License](#license)
 
 ## Project Overview
 
@@ -22,7 +24,7 @@ Explain briefly what your project does, its purpose, and any key features.
 
 ## Features
 
-- List of key features or functionalities.
+-   List of key features or functionalities.
 
 ## Installation
 
@@ -30,17 +32,18 @@ Describe how to install and set up your project. Include any prerequisites and s
 
 ### Backend (Flask API)
 
-- Instructions for setting up the Flask backend, including using pipenv.
+-   Instructions for setting up the Flask backend, including using pipenv.
 
 ```bash
 cd server
 pipenv install
 pipenv shell
 ```
+````
 
 ### Frontend (React with Vite)
 
-- Instructions for setting up the React frontend, including using npm or yarn.
+-   Instructions for setting up the React frontend, including using npm or yarn.
 
 ```bash
 cd client
@@ -76,6 +79,7 @@ Specify the license under which your project is distributed.
 ---
 
 Feel free to modify this template to suit your specific project needs. Include additional sections as necessary to provide comprehensive documentation for your users and contributors.
+
 ```
 
 ### Customization Tips
@@ -87,3 +91,4 @@ Feel free to modify this template to suit your specific project needs. Include a
 - **Deployment**: If relevant, include instructions for deployment or hosting.
 
 Customize this template to best fit your project’s structure and needs. It will help provide clear documentation for users and potential contributors to understand and interact with your project effectively.
+```
