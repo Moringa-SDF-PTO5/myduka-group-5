@@ -1,5 +1,5 @@
 To create a README.md file for your main repository that serves as a template structure, you can include sections that provide essential information about your project, its purpose, setup instructions, and usage guidelines. Here’s a basic template you can start with:
-
+usage guidelines. Here’s a basic template you can start with:
 ### README.md Template
 
 ```markdown
