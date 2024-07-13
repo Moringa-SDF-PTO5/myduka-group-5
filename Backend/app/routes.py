@@ -3,13 +3,19 @@ from app import db
 from app.models import User
 from flask import current_app as app
 
+@app.route('/')
+def index():
+    return 'Hello, World!'
+
+
+
 @app.route('/users', methods=['GET'])
 def list_user():
     users = User.query.all()
     users_data=[user.to_dict()for user in users]    
     return jsonify({
         "status":"success",
-        "message":"success",
+        "message":"ok",
         "data":users_data
         
     }),201
