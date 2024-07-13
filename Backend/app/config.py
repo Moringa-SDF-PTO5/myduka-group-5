@@ -1,5 +1,3 @@
 import os
-# DATABASE_URL='postgresql://josephine:root@localhost:5432/inventory_db1'
-# APP_ENV='production'
-DATABASE_URL='postgresql://inventory_api_8kjl_user:vltJzHktDbKhqFFyefC7mR1B9nIzutni@dpg-cq9851qju9rs73b1msc0-a.frankfurt-postgres.render.com/inventory_api_8kjl'
+DATABASE_URL='postgresql://josephine:root@localhost:5432/inventory_db1'
 APP_ENV='production'
