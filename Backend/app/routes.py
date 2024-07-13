@@ -5,7 +5,9 @@ from flask import current_app as app
 
 @app.route('/')
 def index():
-    return 'Hello, World!'
+    return ' World!'
+
+
 
 
 
@@ -15,7 +17,7 @@ def list_user():
     users_data=[user.to_dict()for user in users]    
     return jsonify({
         "status":"success",
-        "message":"ok",
+        "message":"success",
         "data":users_data
         
     }),201
