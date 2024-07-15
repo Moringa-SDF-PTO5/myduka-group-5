@@ -14,10 +14,11 @@ def create_app():
     app = Flask(__name__)
     
     # Configure SQLAlchemy database URI
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        'postgresql://josephine:root@localhost:5432/'
+        'inventory_db1'
+    )
 
-    # Additional configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://josephine:root@localhost:5432/inventory_db1'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
