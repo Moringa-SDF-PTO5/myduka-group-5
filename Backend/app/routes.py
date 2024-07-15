@@ -16,8 +16,8 @@ def list_user():
     users = User.query.all()
     users_data=[user.to_dict()for user in users]    
     return jsonify({
-        "status":"success",
-        "message":"success",
+        "status":"ok",
+        "message":"ok",
         "data":users_data
         
     }),201
