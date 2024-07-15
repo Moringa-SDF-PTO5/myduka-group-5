@@ -17,7 +17,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 
     # Additional configuration
-    app.config['ENVIRONMENT'] = os.getenv('APP_ENV', 'development')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://josephine:root@localhost:5432/inventory_db1'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
