@@ -33,7 +33,7 @@ def create_user():
     if not (user_id and username and email and password_hash and role and confirmed_admin):
         return jsonify({
             "status": "Failed",
-            "message": " all fields required.",
+            "message":"all fields required.",
             "data": None
         }), 400  
 
