@@ -5,7 +5,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return 'Hello World!'
+    return jsonify({"message": "Hello, World!"})
 
 @main.route('/users', methods=['GET'])
 def list_user():

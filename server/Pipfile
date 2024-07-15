@@ -5,14 +5,13 @@ name = "pypi"
 
 [packages]
 flask = "*"
+flask-sqlalchemy = "*"
 flask-migrate = "*"
+psycopg2-binary = "*"
 python-dotenv = "*"
-psycopg2 = "*"
+pytest = "*"
 
 [dev-packages]
-autopep8 = "*"
-pytest = "*"
-flake8 = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.11"
