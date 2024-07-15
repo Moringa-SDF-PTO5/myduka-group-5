@@ -27,7 +27,8 @@ def create_user():
     role = data.get('role')
     confirmed_admin = data.get('confirmed_admin')
     
-    if not (user_id and username and email and password_hash and role and confirmed_admin):
+    if not (user_id and username and email and password_hash and role and 
+            confirmed_admin):
         return jsonify({
             "status": "Failed",
             "message": "All fields required.",
