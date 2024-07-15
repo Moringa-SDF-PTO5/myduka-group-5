@@ -15,8 +15,7 @@ def create_app():
     
     # Configure SQLAlchemy database URI
     app.config['SQLALCHEMY_DATABASE_URI'] = (
-        'postgresql://josephine:root@localhost:5432/'
-        'inventory_db1'
+        'DATABASE_URL'
     )
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
