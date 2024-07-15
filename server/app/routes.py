@@ -1,5 +1,4 @@
 from flask import request, jsonify
-from app import db
 from app.models import User
 from flask import current_app as app
 from flask import Blueprint
@@ -34,7 +33,7 @@ def create_user():
     if not (user_id and username and email and password_hash and role and confirmed_admin):
         return jsonify({
             "status": "Failed",
-            "message": "Please provide all required fields.",
+            "message": " all fields required.",
             "data": None
         }), 400  
 
