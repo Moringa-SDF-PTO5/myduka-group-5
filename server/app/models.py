@@ -22,3 +22,4 @@ class User(db.Model):
             'confirmed_admin': self.confirmed_admin  
             
         }
+    
