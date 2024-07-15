@@ -1,26 +1,23 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 from app.models import User
-from flask import current_app as app
-from flask import Blueprint
+
 main = Blueprint('main', __name__)
 
-
-@app.route('/')
+@main.route('/')
 def index():
-    return ' Hello World!'
+    return 'Hello World!'
 
-@app.route('/users', methods=['GET'])
+@main.route('/users', methods=['GET'])
 def list_user():
     users = User.query.all()
-    users_data=[user.to_dict()for user in users]    
+    users_data = [user.to_dict() for user in users]
     return jsonify({
-        "status":"ok",
-        "message":"ok",
-        "data":users_data
-        
-    }),201
-    
-@app.route('/users', methods=['POST'])
+        "status": "ok",
+        "message": "ok",
+        "data": users_data
+    }), 201
+
+@main.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
     user_id = data.get('user_id')
@@ -33,9 +30,9 @@ def create_user():
     if not (user_id and username and email and password_hash and role and confirmed_admin):
         return jsonify({
             "status": "Failed",
-            "message":"all fields required.",
+            "message": "All fields required.",
             "data": None
-        }), 400  
+        }), 400
 
     return jsonify({
         "status": "Success",
