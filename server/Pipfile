@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 flask = "*"
+flask-migrate = "*"
+python-dotenv = "*"
+psycopg2 = "*"
 
 [dev-packages]
 autopep8 = "*"
