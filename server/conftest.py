@@ -8,10 +8,7 @@ def client():
         with app.app_context():
             yield client
 
-# 
-# 
-# import pytest
-# from app import app
+
 
 # @pytest.fixture
 # def client():
