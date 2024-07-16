@@ -2,11 +2,22 @@ import React, { useState } from 'react';
 import './css/Login.css'
 // import { useDispatch } from 'react-redux';
 // import { login } from '../features/userSlice';
+import { useAuth } from "../authcontext";
+import { useNavigate } from "react-router-dom";
+
 
 const Login = () => {
     const  [username, setUsername] = useState("");
     const  [email, setEmail] = useState("");
     const  [password, setPassword] = useState("");
+    const { login } = useAuth()
+    const navigate = useNavigate()
+
+async function onSubmit (values) {
+    console.log(values)
+    login()
+    navigate('/dashboard')
+}
 
     // const dispatch = useDispatch();
 
@@ -49,7 +60,7 @@ const Login = () => {
         <button type='submit' className='submit_btn'>Submit</button> 
         </form>
     </div>
-  )
-}
+  );
+};
 
 export default Login
