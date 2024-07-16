@@ -12,6 +12,7 @@ python-dotenv = "*"
 pytest = "*"
 
 [dev-packages]
-
+flake8 = "*"
+max-line-length = 100
 [requires]
 python_version = "3.11"

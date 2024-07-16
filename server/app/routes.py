@@ -3,9 +3,11 @@ from app.models import User
 
 main = Blueprint('main', __name__)
 
+
 @main.route('/')
 def index():
     return jsonify({"message": "Hello, World!"})
+
 
 @main.route('/users', methods=['GET'])
 def list_user():
@@ -15,7 +17,8 @@ def list_user():
         "status": "ok",
         "message": "ok",
         "data": users_data
-    }), 201
+    }), 200
+
 
 @main.route('/users', methods=['POST'])
 def create_user():
@@ -26,8 +29,8 @@ def create_user():
     password_hash = data.get('password_hash')
     role = data.get('role')
     confirmed_admin = data.get('confirmed_admin')
-    
-    if not (user_id and username and email and password_hash and role and 
+
+    if not (user_id and username and email and password_hash and role and
             confirmed_admin):
         return jsonify({
             "status": "Failed",
