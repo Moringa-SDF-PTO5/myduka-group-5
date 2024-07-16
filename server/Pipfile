@@ -5,6 +5,12 @@ name = "pypi"
 
 [packages]
 flask = "*"
+flask-sqlalchemy = "*"
+psycopg2-binary = "*"
+flask-cors = "*"
+flask-migrate = "*"
+sqlalchemy-serializer = "*"
+python-dotenv = "*"
 
 [dev-packages]
 autopep8 = "*"
@@ -12,4 +18,4 @@ pytest = "*"
 flake8 = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"
