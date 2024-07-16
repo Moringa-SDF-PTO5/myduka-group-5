@@ -43,8 +43,8 @@ class Store(db.Model):
     store = relationship('Store', backref='products')
 
 
-def __repr__(self):
-        return f'Store(id={self.store_id}, name={self.store_name}, name={self.location})'
+    def __repr__(self):
+            return f'Store(id={self.store_id}, name={self.store_name}, name={self.location})'
 
 class Product(db.Model):
     __tablename__ = 'products'
@@ -54,8 +54,8 @@ class Product(db.Model):
     buying_price = db.Column(db.Integer, nullable = False)
     selling_price = db.Column(db.Integer, nullable = False)
 
-def __repr__(self):
-        return f'Product(id={self.product_id}, product_name={self.product_name} , buying_price={self.buying_price}, selling_price={self.selling_price})'
+    def __repr__(self):
+            return f'Product(id={self.product_id}, product_name={self.product_name} , buying_price={self.buying_price}, selling_price={self.selling_price})'
 
 
 class Inventory(db.Model):
@@ -74,8 +74,8 @@ class Inventory(db.Model):
 
 
 
-def __repr__(self):
-        return f'Inventory(inventory_id={self.inventory_id}, inventory_name={self.inventory_name}, store_id={self.store_id}, quantity_received={self.quantity_received}, quantity_in_stock={self.quantity_in_stock}, quantity_spoilt={self.quantity_spoilt}, payment_status={self.payment_status})'
+    def __repr__(self):
+            return f'Inventory(inventory_id={self.inventory_id}, inventory_name={self.inventory_name}, store_id={self.store_id}, quantity_received={self.quantity_received}, quantity_in_stock={self.quantity_in_stock}, quantity_spoilt={self.quantity_spoilt}, payment_status={self.payment_status})'
 
 
 class Request(db.Model):
@@ -90,5 +90,5 @@ class Request(db.Model):
     inventory = relationship('Inventory', backref='requests')  # Relationship to access inventory associated with a request
     user = relationship('User', backref='requests')  # Relationship to access user associated with a request
 
-def __repr__(self):
-        return f'Store(request_id={self.request_id}, inventoryid={self.Inventory_id}, userid={self.user_id}, date_requested={self.request_date}, name={self.user_id}, status={self.status})'
+    def __repr__(self):
+            return f'Store(request_id={self.request_id}, inventoryid={self.Inventory_id}, userid={self.user_id}, date_requested={self.request_date}, name={self.user_id}, status={self.status})'
