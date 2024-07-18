@@ -1,12 +1,23 @@
 from flask import make_response, request, jsonify, current_app as app
 from .models import User
-from app import db
 
 
 @app.route('/')
 def home():
     welcome_message = {'message': 'Welcome to the myduka inventory db.'}
     return make_response(jsonify(welcome_message), 200)
+# GET
+@app.routes('/users', methods=['GET'])
+def list_users():
+    users = User.query.all()
+    user_data = [user.to_dict()for user in users]
+
+    return jsonify({
+        'status': 'success',
+        'message': 'list of users',
+        'data': user_data
+    })
+# POST
 
 
 @app.route('/users', methods=['POST'])
