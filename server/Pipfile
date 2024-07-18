@@ -17,7 +17,10 @@ importlib-metadata = "*"
 
 [dev-packages]
 autopep8 = "*"
-flake8 = "*"
+[flake8]
+per-file-ignores =
+    server/app/__init__.py: F401
+
 pytest = "*"
 
 [requires]

@@ -1,54 +1,55 @@
-from flask import make_response, request, jsonify, current_app as app
-from .models import User
+from flask import request, jsonify, make_response
+from app.models import User
+from flask import current_app as app
 
 
 @app.route('/')
 def home():
     welcome_message = {'message': 'Welcome to the myduka inventory db.'}
     return make_response(jsonify(welcome_message), 200)
-# GET
-@app.routes('/users', methods=['GET'])
-def list_users():
-    users = User.query.all()
-    user_data = [user.to_dict()for user in users]
 
+
+@app.route('/users', methods=['GET'])
+def list_user():
+    users = User.query.all()
+    users_data = [user.to_dict() for user in users]
     return jsonify({
-        'status': 'success',
-        'message': 'list of users',
-        'data': user_data
-    })
-# POST
+        "status": "success",
+        "message": "success",
+        "data": users_data
+    }), 201
 
 
 @app.route('/users', methods=['POST'])
 def create_user():
-    data = request.get_json('data')
-    user_id = data.get_json('user_id')
-    username = data.get_json('username')
-    email = data.get_json('email')
-    password_hash = data.get_json('password_hash')
-    role = data.get_json('role')
-    is_active = data.get_json('is_active')
-    confirmed_admin = data.get_json('confirmed_admin')
-    if not (data and user_id and username and email and password_hash and role and is_active
-            and confirmed_admin):
+    data = request.get_json()
+    user_id = data.get('user_id')
+    username = data.get('username')
+    email = data.get('email')
+    password_hash = data.get('password_hash')
+    role = data.get('role')
+    is_active = data.get('is_active')
+    confirmed_admin = data.get('confirmed_admin')
+
+    if not (
+        user_id and username and email and password_hash and role and
+        is_active and confirmed_admin
+    ):
         return jsonify({
-            "status": "failed",
-            "message": "all fields required",
-            "data": "None"
+            "status": "Failed",
+            "message": "Please provide all required fields.",
+            "data": None
+        }), 400
 
-        }), 403
+    # Assuming you create and save the user here, then return success response.
     return jsonify({
-        'status': 'success',
-        'message': 'user created successfully',
-        'data': {
-            'user_id': user_id,
-            'username': username,
-            'email': email,
-            'password_hash': password_hash,
-            'role': role,
-            'is_active': is_active,
-            'confirmed_admin': confirmed_admin
-
+        "status": "Success",
+        "message": "User created successfully.",
+        "data": {
+            "user_id": user_id,
+            "username": username,
+            "email": email,
+            "role": role,
+            "confirmed_admin": confirmed_admin
         }
-    }), 200
+    }), 201

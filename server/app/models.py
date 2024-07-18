@@ -22,18 +22,5 @@ class User(db.Model):
             'role': self.role,
             'is_active': self.is_active,
             'confirmed_admin': self.confirmed_admin
+
         }
-
-
-class Invitations(db.Model):
-    __tablename__ = 'invitations'
-
-    invitation_id = db.Column(db.Integer, primary_key=True)
-    token = db.Column(db.String(150), nullable=False, unique=True)
-    email = db.Column(db.String(120), nullable=False, unique=True)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    expiry_at = db.Column(db.DateTime, onupdate=db.func.now())
-    is_used = db.Column(db.Boolean(1), default=True)
-
-    def __repr__(self):
-        return f'<Invitation {self.invitation_id}>'
