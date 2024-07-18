@@ -1,6 +1,6 @@
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response,current_app as app
 from app.models import User
-from flask import current_app as app
+
 
 
 @app.route('/')
