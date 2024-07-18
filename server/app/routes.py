@@ -1,53 +1,13 @@
-from flask import make_response, request, jsonify, Blueprint
-from .models import User
+from flask import make_response, request, jsonify,current_app as app
+# from .models import User
+# from app import db
 
 
-main = Blueprint('main', __name__)
 
 
-@main.route('/')
+
+@app.route('/')
 def home():
     welcome_message = {'message': 'Welcome to the myduka inventory db.'}
     return make_response(jsonify(welcome_message), 200)
 
-
-@main.route('/users', methods=['GET'])
-def list_user():
-    users = User.query.all()
-    users_data = [user.to_dict() for user in users]
-    return jsonify({
-        "status": "ok",
-        "message": "ok",
-        "data": users_data
-    }), 200
-
-
-@main.route('/users', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    username = data.get('username')
-    email = data.get('email')
-    password_hash = data.get('password_hash')
-    role = data.get('role')
-    confirmed_admin = data.get('confirmed_admin')
-
-    if not (user_id and username and email and password_hash and role and
-            confirmed_admin):
-        return jsonify({
-            "status": "Failed",
-            "message": "All fields required.",
-            "data": None
-        }), 400
-
-    return jsonify({
-        "status": "Success",
-        "message": "User created successfully.",
-        "data": {
-            "user_id": user_id,
-            "username": username,
-            "email": email,
-            "role": role,
-            "confirmed_admin": confirmed_admin
-        }
-    }), 201
