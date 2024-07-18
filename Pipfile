@@ -13,6 +13,7 @@ sqlalchemy-serializer = "*"
 flask-migrate = "*"
 exceptiongroup = "*"
 importlib-resources = "*"
+importlib-metadata = "*"
 
 [dev-packages]
 autopep8 = "*"
