@@ -41,7 +41,6 @@ def create_user():
             "data": None
         }), 400
 
-    # Assuming you create and save the user here, then return success response.
     return jsonify({
         "status": "Success",
         "message": "User created successfully.",
@@ -50,6 +49,7 @@ def create_user():
             "username": username,
             "email": email,
             "role": role,
+            "is_active": is_active,
             "confirmed_admin": confirmed_admin
         }
     }), 201
