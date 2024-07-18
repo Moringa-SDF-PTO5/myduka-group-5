@@ -12,6 +12,7 @@ flask-cors = "*"
 sqlalchemy-serializer = "*"
 flask-migrate = "*"
 exceptiongroup = "*"
+importlib-resources = "*"
 
 [dev-packages]
 autopep8 = "*"
