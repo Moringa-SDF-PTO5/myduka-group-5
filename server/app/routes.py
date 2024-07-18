@@ -4,10 +4,12 @@ from .models import User
 
 main = Blueprint('main', __name__)
 
+
 @main.route('/')
 def home():
     welcome_message = {'message': 'Welcome to the myduka inventory db.'}
     return make_response(jsonify(welcome_message), 200)
+
 
 @main.route('/users', methods=['GET'])
 def list_user():
@@ -18,6 +20,7 @@ def list_user():
         "message": "ok",
         "data": users_data
     }), 200
+
 
 @main.route('/users', methods=['POST'])
 def create_user():
