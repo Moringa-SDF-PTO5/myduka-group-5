@@ -8,20 +8,12 @@ flask = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
-flask-cors = "*"
-sqlalchemy-serializer = "*"
 flask-migrate = "*"
-exceptiongroup = "*"
-importlib-resources = "*"
-importlib-metadata = "*"
+pytest = "*"
+autopep8 = "*"
+flake8 = "*"
 
 [dev-packages]
-autopep8 = "*"
-[flake8]
-per-file-ignores =
-    server/app/__init__.py: F401
-
-pytest = "*"
 
 [requires]
 python_version = "3.11"
