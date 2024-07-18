@@ -23,6 +23,8 @@ class User(db.Model):
             'is_active': self.is_active,
             'confirmed_admin': self.confirmed_admin
         }
+
+
 class Invitations(db.Model):
     __tablename__ = 'invitations'
 
