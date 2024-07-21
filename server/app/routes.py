@@ -185,7 +185,12 @@ def delete_store(store_id):
     
     db.session.delete(store)
     db.session.commit()
-    return jsonify({'message': 'Store deleted'}), 200
+    
+    return jsonify({
+        "status": "Success",
+        "message": "Store deleted successfully.",
+        "data": None
+    }), 200
 
 # Routes for products
 @app.route('/products', methods=['GET'])
@@ -255,4 +260,9 @@ def delete_product(product_id):
     
     db.session.delete(product)
     db.session.commit()
-    return jsonify({'message': 'Product deleted'}), 200
+    
+    return jsonify({
+        "status": "Success",
+        "message": "Product deleted successfully.",
+        "data": None
+    }), 200
