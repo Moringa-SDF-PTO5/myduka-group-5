@@ -119,66 +119,102 @@ def delete_user(user_id):
 @app.route('/stores', methods=['GET'])
 def get_stores():
     stores = Store.query.all()
-    return jsonify([store.__repr__() for store in stores])
+    stores_data = [store.to_dict() for store in stores]  # Serialize each Store object
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": stores_data
+    }), 200
 
 @app.route('/stores/<int:store_id>', methods=['GET'])
 def get_store(store_id):
     store = Store.query.get(store_id)
     if not store:
-        return jsonify({'error': 'Store not found'}), 404
-    return jsonify(store.__repr__())
+        return jsonify({
+            "status": "Failed",
+            "message": "Store not found",
+            "data": None
+        }), 404
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": store.to_dict()
+    }), 201
+    
 
 @app.route('/stores', methods=['POST'])
 def create_store():
     data = request.get_json()
     if 'store_name' not in data or 'location' not in data:
-        return jsonify({'error': 'Missing required fields: store_name or location'}), 400
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Store_name and location fields are required',
+            'data': None
+        }), 400
     
     new_store = Store(store_name=data['store_name'], location=data['location'])
     db.session.add(new_store)
     db.session.commit()
-    return jsonify(new_store.__repr__()), 201
+    return jsonify(new_store.to_dict()), 201
 
 @app.route('/stores/<int:store_id>', methods=['PUT'])
 def update_store(store_id):
     store = Store.query.get(store_id)
     if not store:
-        return jsonify({'error': 'Store not found'}), 404
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Store not found',
+            'data': None
+        }), 404
     
     data = request.get_json()
     store.store_name = data.get('store_name', store.store_name)
     store.location = data.get('location', store.location)
     db.session.commit()
-    return jsonify(store.__repr__())
+    return jsonify(store.to_dict()), 200
 
 @app.route('/stores/<int:store_id>', methods=['DELETE'])
 def delete_store(store_id):
     store = Store.query.get(store_id)
     if not store:
-        return jsonify({'error': 'Store not found'}), 404
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Store not found',
+            'data': None
+        }), 404
     
     db.session.delete(store)
     db.session.commit()
-    return jsonify({'message': 'Store deleted'})
+    return jsonify({'message': 'Store deleted'}), 200
 
 # Routes for products
 @app.route('/products', methods=['GET'])
 def get_products():
     products = Product.query.all()
-    return jsonify([product.__repr__() for product in products])
+    products_data = [product.to_dict() for product in products]
+    return jsonify(products_data), 200
 
 @app.route('/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     product = Product.query.get(product_id)
     if not product:
-        return jsonify({'error': 'Product not found'}), 404
-    return jsonify(product.__repr__())
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Product not found',
+            'data': None
+        }), 404
+    
+    return jsonify(product.to_dict()), 200
 
 @app.route('/products', methods=['POST'])
 def create_product():
     data = request.get_json()
     if 'product_name' not in data or 'buying_price' not in data or 'selling_price' not in data or 'store_id' not in data:
-        return jsonify({'error': 'Missing required fields: product_name, buying_price, selling_price, or store_id'}), 400
+        return jsonify({
+            'status': 'Failed',
+            'message': 'product_name, buying_price, selling_price, and store_id are required',
+            'data': None
+        }), 400
     
     new_product = Product(
         product_name=data['product_name'],
@@ -188,27 +224,35 @@ def create_product():
     )
     db.session.add(new_product)
     db.session.commit()
-    return jsonify(new_product.__repr__()), 201
+    return jsonify(new_product.to_dict()), 201
 
 @app.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     product = Product.query.get(product_id)
     if not product:
-        return jsonify({'error': 'Product not found'}), 404
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Product not found',
+            'data': None
+        }), 404
     
     data = request.get_json()
     product.product_name = data.get('product_name', product.product_name)
     product.buying_price = data.get('buying_price', product.buying_price)
     product.selling_price = data.get('selling_price', product.selling_price)
     db.session.commit()
-    return jsonify(product.__repr__())
+    return jsonify(product.to_dict()), 200
 
 @app.route('/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     product = Product.query.get(product_id)
     if not product:
-        return jsonify({'error': 'Product not found'}), 404
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Product not found',
+            'data': None
+        }), 404
     
     db.session.delete(product)
     db.session.commit()
-    return jsonify({'message': 'Product deleted'})
+    return jsonify({'message': 'Product deleted'}), 200
