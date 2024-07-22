@@ -14,7 +14,7 @@ def home():
 # User routes
 
 
-@app.route('/users', methods=['GET'])
+@app.route('/api/users', methods=['GET'])
 def list_users():
     users = User.query.all()
     users_data = [user.to_dict() for user in users]
@@ -25,7 +25,7 @@ def list_users():
     }), 200
 
 
-@app.route('/users/<int:user_id>', methods=['GET'])
+@app.route('/api/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
 
     user = User.query.get(user_id)
@@ -43,54 +43,48 @@ def get_user(user_id):
     }), 200
 
 
-@app.route('/users', methods=['POST'])
+@app.route('/api/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    password_hash = data.get('password_hash')
-    role = data.get('role')
-    is_active = data.get('is_active')
-    confirmed_admin = data.get('confirmed_admin')
 
-    if not (
-        username and email and password_hash and role and
-        is_active is not None and confirmed_admin is not None
-    ):
+    if not all(key in data for key in ['username', 'email']):
         return jsonify({
-            "status": "Failed",
-            "message": "Please provide all required fields.",
-            "data": None
+            'status': 'Failed',
+            'message': 'Username and email are required.',
+            'data': None
         }), 400
 
-    new_user = User(
-        username=username,
-        email=email,
-        password_hash=password_hash,
-        role=role,
-        is_active=is_active,
-        confirmed_admin=confirmed_admin
-    )
-
     try:
+        new_user = User(
+            username=data.get('username'),
+            email=data.get('email'),
+            password_hash=data.get('password_hash', None),
+            role=data.get('role', 'user'),
+            is_active=data.get('is_active', True),
+            confirmed_admin=data.get('confirmed_admin', False)
+        )
+
         db.session.add(new_user)
         db.session.commit()
+
+        response_data = {
+            'status': 'Success',
+            'message': 'User created successfully.',
+            'data': new_user.to_dict()
+        }
+        print(response_data)
+
+        return jsonify(response_data), 201
     except Exception as e:
-        db.session.rollback()
+        print(f"Error: {e}")
         return jsonify({
-            "status": "Failed",
-            "message": "An error occurred while adding the user.",
-            "data": str(e)
+            'status': 'Failed',
+            'message': 'An error occurred while creating the user.',
+            'data': None
         }), 500
 
-    return jsonify({
-        "status": "Success",
-        "message": "User created successfully.",
-        "data": new_user.to_dict()
-    }), 201
 
-
-@app.route('/users/<int:user_id>', methods=['PUT'])
+@app.route('/api/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -116,7 +110,7 @@ def update_user(user_id):
     }), 200
 
 
-@app.route('/users/<int:user_id>', methods=['DELETE'])
+@app.route('/api/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -135,10 +129,8 @@ def delete_user(user_id):
         "data": None
     }), 200
 
-# Invitation routes
 
-
-@app.route('/invitations', methods=['GET'])
+@app.route('/api/invitations', methods=['GET'])
 def list_invitations():
     invitations = Invitation.query.all()
     invitations_data = [invitation.to_dict() for invitation in invitations]
@@ -149,7 +141,7 @@ def list_invitations():
     }), 200
 
 
-@app.route('/invitations/<int:invitation_id>', methods=['GET'])
+@app.route('/api/invitations/<int:invitation_id>', methods=['GET'])
 def get_invitation(invitation_id):
     # Retrieve the invitation by ID
     invitation = Invitation.query.get(invitation_id)
@@ -167,7 +159,11 @@ def get_invitation(invitation_id):
     }), 200
 
 
-@app.route('/invitations', methods=['POST'])
+def get_current_utc():
+    return datetime.now(timezone.utc)
+
+
+@app.route('/api/invitations', methods=['POST'])
 def create_invitation():
     data = request.get_json()
     email = data.get('email')
@@ -175,40 +171,77 @@ def create_invitation():
 
     if not email or not user_id:
         return jsonify({
-            "status": "Failed",
-            "message": "Email and user_id are required.",
-            "data": None
+            'status': 'Failed',
+            'message': 'Missing required fields.',
+            'data': None
         }), 400
 
-    token = str(uuid.uuid4())
-    expiry_date = datetime.now(timezone.utc) + timedelta(days=7)
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'User not found.',
+            'data': None
+        }), 404
 
-    new_invitation = Invitation(
+    token = str(uuid.uuid4())
+    expiry_date = get_current_utc() + timedelta(hours=72)
+
+    invitation = Invitation(
         token=token,
         email=email,
-        expiry_date=expiry_date,
-        user_id=user_id
+        user_id=user_id,
+        expiry_date=expiry_date
     )
 
     try:
-        db.session.add(new_invitation)
+        db.session.add(invitation)
         db.session.commit()
-    except Exception as e:
+        return jsonify({
+            'status': 'Success',
+            'message': 'Invitation created successfully.',
+            'data': invitation.to_dict()
+        }), 201
+    except Exception:
         db.session.rollback()
         return jsonify({
-            "status": "Failed",
-            "message": "An error occurred while adding the invitation.",
-            "data": str(e)
+            'status': 'Failed',
+            'message': 'An error occurred while adding the invitation.',
+            'data': 'An error occurred.'
         }), 500
 
-    return jsonify({
-        "status": "Success",
-        "message": "Invitation created successfully.",
-        "data": new_invitation.to_dict()
-    }), 201
+
+@app.route('/api/invitations/<int:invitation_id>', methods=['DELETE'])
+def delete_invitation(invitation_id):
+    invitation = Invitation.query.get(invitation_id)
+
+    if not invitation:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Invitation not found.',
+            'data': None
+        }), 404
+
+    try:
+        db.session.delete(invitation)
+        db.session.commit()
+
+        return jsonify({
+            'status': 'Success',
+            'message': 'Invitation deleted successfully.',
+            'data': None
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+
+        return jsonify({
+            'status': 'Failed',
+            'message': 'An error occurred while deleting the invitation.',
+            'data': str(e)
+        }), 500
 
 
-@app.route('/invitations/<int:invitation_id>', methods=['PUT'])
+@app.route('/api/invitations/<int:invitation_id>', methods=['PUT'])
 def update_invitation(invitation_id):
     invitation = Invitation.query.get(invitation_id)
     if not invitation:
@@ -229,24 +262,4 @@ def update_invitation(invitation_id):
         "status": "Success",
         "message": "Invitation updated successfully.",
         "data": invitation.to_dict()
-    }), 200
-
-
-@app.route('/invitations/<int:invitation_id>', methods=['DELETE'])
-def delete_invitation(invitation_id):
-    invitation = Invitation.query.get(invitation_id)
-    if not invitation:
-        return jsonify({
-            "status": "Failed",
-            "message": "Invitation not found.",
-            "data": None
-        }), 404
-
-    db.session.delete(invitation)
-    db.session.commit()
-
-    return jsonify({
-        "status": "Success",
-        "message": "Invitation deleted successfully.",
-        "data": None
     }), 200

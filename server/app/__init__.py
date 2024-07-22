@@ -7,9 +7,14 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 
-def create_app():
+def create_app(config_name=None):
     app = Flask(__name__)
-    app.config.from_object(Config)
+
+    # Load the default configuration or a specific one based on config_name
+    if config_name:
+        app.config.from_object(config_name)
+    else:
+        app.config.from_object(Config)
 
     print("Database URL:", app.config['SQLALCHEMY_DATABASE_URI'])
 

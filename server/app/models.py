@@ -1,6 +1,6 @@
 # app/models.py
 from app import db
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 
 def get_current_utc():
@@ -44,8 +44,11 @@ class Invitation(db.Model):
     expiry_date = db.Column(db.DateTime, nullable=False)
     is_used = db.Column(db.String(1), nullable=False, default='0')
 
-    # Foreign key relationship
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+
+    # expiry date set to 72 hours after date invitation was created
+    def calculate_expiry_date(self):
+        self.expiry_date = self.created_at + timedelta(hours=72)
 
     def __init__(self, token, email, expiry_date, user_id, is_used='0'):
         self.token = token
@@ -62,8 +65,8 @@ class Invitation(db.Model):
             'Invitation_id': self.Invitation_id,
             'token': self.token,
             'email': self.email,
-            'created_at': self.created_at,
-            'expiry_date': self.expiry_date,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'expiry_date': self.expiry_date.isoformat() if self.expiry_date else None,
             'is_used': self.is_used,
             'user_id': self.user_id
         }
