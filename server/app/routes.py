@@ -116,7 +116,7 @@ def delete_user(user_id):
 # Routes:: Winnie
 
 # Routes for stores
-@app.route('/stores', methods=['GET'])
+@app.route('/api/stores', methods=['GET'])
 def get_stores():
     stores = Store.query.all()
     stores_data = [store.to_dict() for store in stores]  # Serialize each Store object
@@ -126,7 +126,7 @@ def get_stores():
         "data": stores_data
     }), 200
 
-@app.route('/stores/<int:store_id>', methods=['GET'])
+@app.route('/api/stores/<int:store_id>', methods=['GET'])
 def get_store(store_id):
     store = Store.query.get(store_id)
     if not store:
@@ -142,7 +142,7 @@ def get_store(store_id):
     }), 201
     
 
-@app.route('/stores', methods=['POST'])
+@app.route('/api/stores', methods=['POST'])
 def create_store():
     data = request.get_json()
     if 'store_name' not in data or 'location' not in data:
@@ -157,7 +157,7 @@ def create_store():
     db.session.commit()
     return jsonify(new_store.to_dict()), 201
 
-@app.route('/stores/<int:store_id>', methods=['PUT'])
+@app.route('/api/stores/<int:store_id>', methods=['PUT'])
 def update_store(store_id):
     store = Store.query.get(store_id)
     if not store:
@@ -173,7 +173,7 @@ def update_store(store_id):
     db.session.commit()
     return jsonify(store.to_dict()), 200
 
-@app.route('/stores/<int:store_id>', methods=['DELETE'])
+@app.route('/api/stores/<int:store_id>', methods=['DELETE'])
 def delete_store(store_id):
     store = Store.query.get(store_id)
     if not store:
@@ -193,13 +193,13 @@ def delete_store(store_id):
     }), 200
 
 # Routes for products
-@app.route('/products', methods=['GET'])
+@app.route('/api/products', methods=['GET'])
 def get_products():
     products = Product.query.all()
     products_data = [product.to_dict() for product in products]
     return jsonify(products_data), 200
 
-@app.route('/products/<int:product_id>', methods=['GET'])
+@app.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     product = Product.query.get(product_id)
     if not product:
@@ -211,7 +211,7 @@ def get_product(product_id):
     
     return jsonify(product.to_dict()), 200
 
-@app.route('/products', methods=['POST'])
+@app.route('/api/products', methods=['POST'])
 def create_product():
     data = request.get_json()
     if 'product_name' not in data or 'buying_price' not in data or 'selling_price' not in data or 'store_id' not in data:
@@ -231,7 +231,7 @@ def create_product():
     db.session.commit()
     return jsonify(new_product.to_dict()), 201
 
-@app.route('/products/<int:product_id>', methods=['PUT'])
+@app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     product = Product.query.get(product_id)
     if not product:
@@ -248,7 +248,7 @@ def update_product(product_id):
     db.session.commit()
     return jsonify(product.to_dict()), 200
 
-@app.route('/products/<int:product_id>', methods=['DELETE'])
+@app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     product = Product.query.get(product_id)
     if not product:
