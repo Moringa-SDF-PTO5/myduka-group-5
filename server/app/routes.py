@@ -20,8 +20,26 @@ def list_users():
     users_data = [user.to_dict() for user in users]
     return jsonify({
         "status": "success",
-        "message": "success",
+        "message": "Listed all Users",
         "data": users_data
+    }), 200
+
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({
+            "status": "Failed",
+            "message": "User not found.",
+            "data": None
+        }), 404
+
+    return jsonify({
+        "status": "Success",
+        "message": "User retrieved successfully.",
+        "data": user.to_dict()
     }), 200
 
 
@@ -121,15 +139,32 @@ def delete_user(user_id):
 
 
 @app.route('/invitations', methods=['GET'])
-def get_invitations():
+def list_invitations():
     invitations = Invitation.query.all()
-    return jsonify([invitation.to_dict() for invitation in invitations])
+    invitations_data = [invitation.to_dict() for invitation in invitations]
+    return jsonify({
+        "status": "success",
+        "message": "listed all invitations",
+        "data": invitations_data
+    }), 200
 
 
 @app.route('/invitations/<int:invitation_id>', methods=['GET'])
 def get_invitation(invitation_id):
-    invitation = Invitation.query.get_or_404(invitation_id)
-    return jsonify(invitation.to_dict())
+    # Retrieve the invitation by ID
+    invitation = Invitation.query.get(invitation_id)
+    if not invitation:
+        return jsonify({
+            "status": "Failed",
+            "message": "Invitation not found.",
+            "data": None
+        }), 404
+
+    return jsonify({
+        "status": "Success",
+        "message": "Invitation retrieved successfully.",
+        "data": invitation.to_dict()
+    }), 200
 
 
 @app.route('/invitations', methods=['POST'])
