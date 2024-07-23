@@ -91,3 +91,4 @@ dmypy.json
 # Bin Folder
 /myduka/bin/
 /myduka/include/site/python3.10/greenlet
+/myduka/lib64

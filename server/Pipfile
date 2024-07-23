@@ -12,6 +12,7 @@ flask-migrate = "*"
 pytest = "*"
 autopep8 = "*"
 flake8 = "*"
+gunicorn = "*"
 
 [dev-packages]
 
