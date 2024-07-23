@@ -3,7 +3,13 @@ import { createSlice } from '@reduxjs/toolkit'
 export const userSlice = createSlice({
     name: 'user',
     initialState: {
-        user: null
+        // TODO: Reset when login functionality is connected to backend
+        // user: null 
+        user: {
+            userName: 'Frasia',
+            role: 'admin',
+            email: 'frasia.nyakundi@student.moringaschool.com'
+        }
     },
     reducers: {
         login: (state, action) => {
