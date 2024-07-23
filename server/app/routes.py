@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from ..models import Inventory, Product, Store, SupplyRequest, User
-from ..extensions import db
+from .models import Inventory, SupplyRequest 
+from ...server.app.extensions import db
 from datetime import datetime
 
 inventory_bp = Blueprint('inventory', __name__)

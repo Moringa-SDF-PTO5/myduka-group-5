@@ -12,13 +12,9 @@ def create_app(config_name):
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Register Blueprints
-    from .routes.auth_routes import auth_bp
-    from .routes.inventory_routes import inventory_bp
-    from .routes.report_routes import report_bp
+    # Registration of Blueprints
+    from .routes import inventory_bp
 
-    app.register_blueprint(auth_bp)
     app.register_blueprint(inventory_bp)
-    app.register_blueprint(report_bp)
 
     return app
