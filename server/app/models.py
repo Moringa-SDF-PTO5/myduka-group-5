@@ -1,7 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
-from datetime import datetime, timezone, timedelta
+# app/models.py
 from app import db
+from datetime import datetime, timezone,timedelta
+from sqlalchemy.orm import relationship
+
+
+def get_current_utc():
+    return datetime.now(timezone.utc)
 
 def get_current_utc():
     return datetime.now(timezone.utc)
@@ -32,6 +36,43 @@ class User(db.Model):
             'role': self.role,
             'is_active': self.is_active,
             'confirmed_admin': self.confirmed_admin
+        }
+
+
+class Invitation(db.Model):
+    __tablename__ = 'invitations'
+    Invitation_id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=get_current_utc, nullable=False)
+    expiry_date = db.Column(db.DateTime, nullable=False)
+    is_used = db.Column(db.String(1), nullable=False, default='0')
+
+    # extend already existing inviations model
+    __table_args__ = {'extend_existing': True}
+
+    # Foreign key relationship
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+
+    def __init__(self, token, email, expiry_date, user_id, is_used='0'):
+        self.token = token
+        self.email = email
+        self.expiry_date = expiry_date
+        self.user_id = user_id
+        self.is_used = is_used
+
+    def __repr__(self):
+        return f'<Invitation {self.Invitation_id}>'
+
+    def to_dict(self):
+        return {
+            'Invitation_id': self.Invitation_id,
+            'token': self.token,
+            'email': self.email,
+            'created_at': self.created_at,
+            'expiry_date': self.expiry_date,
+            'is_used': self.is_used,
+            'user_id': self.user_id
         }
 
 class Invitation(db.Model):
