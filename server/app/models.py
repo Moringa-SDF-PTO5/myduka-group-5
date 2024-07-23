@@ -43,7 +43,6 @@ class Invitation(db.Model):
     created_at = db.Column(db.DateTime, default=get_current_utc, nullable=False)
     expiry_date = db.Column(db.DateTime, nullable=False)
     is_used = db.Column(db.String(1), nullable=False, default='0')
-
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
     # expiry date set to 72 hours after date invitation was created
