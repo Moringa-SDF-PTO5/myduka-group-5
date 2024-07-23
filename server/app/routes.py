@@ -232,7 +232,7 @@ def get_products():
     return jsonify({
         "status": "success",
         "message": "success",
-        "data": products_data.to_dict()
+        "data": products_data
     }), 201
 
 @app.route('/api/products/<int:product_id>', methods=['GET'])
