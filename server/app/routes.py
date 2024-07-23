@@ -139,7 +139,7 @@ def get_store(store_id):
         "status": "success",
         "message": "success",
         "data": store.to_dict()
-    }), 201
+    }), 200
     
 
 @app.route('/api/stores', methods=['POST'])
@@ -155,7 +155,11 @@ def create_store():
     new_store = Store(store_name=data['store_name'], location=data['location'])
     db.session.add(new_store)
     db.session.commit()
-    return jsonify(new_store.to_dict()), 201
+    return jsonify({
+        "status": "success",
+        "message": "Store added successfully",
+        "data": data.to_dict()
+    }), 201
 
 @app.route('/api/stores/<int:store_id>', methods=['PUT'])
 def update_store(store_id):
@@ -171,7 +175,11 @@ def update_store(store_id):
     store.store_name = data.get('store_name', store.store_name)
     store.location = data.get('location', store.location)
     db.session.commit()
-    return jsonify(store.to_dict()), 200
+    return jsonify({
+        "status": "success",
+        "message": "Store updated successfully",
+        "data": data.to_dict()
+    }), 201
 
 @app.route('/api/stores/<int:store_id>', methods=['DELETE'])
 def delete_store(store_id):
@@ -197,7 +205,12 @@ def delete_store(store_id):
 def get_products():
     products = Product.query.all()
     products_data = [product.to_dict() for product in products]
-    return jsonify(products_data), 200
+    
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": products.to_dict()
+    }), 201
 
 @app.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
@@ -209,7 +222,11 @@ def get_product(product_id):
             'data': None
         }), 404
     
-    return jsonify(product.to_dict()), 200
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": product.to_dict()
+    }), 200
 
 @app.route('/api/products', methods=['POST'])
 def create_product():
@@ -229,7 +246,12 @@ def create_product():
     )
     db.session.add(new_product)
     db.session.commit()
-    return jsonify(new_product.to_dict()), 201
+    
+    return jsonify({
+        "status": "success",
+        "message": "Product added successfully",
+        "data": data.to_dict()
+    }), 201
 
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
@@ -246,7 +268,12 @@ def update_product(product_id):
     product.buying_price = data.get('buying_price', product.buying_price)
     product.selling_price = data.get('selling_price', product.selling_price)
     db.session.commit()
-    return jsonify(product.to_dict()), 200
+    
+    return jsonify({
+        "status": "success",
+        "message": "Product updated successfully",
+        "data": data.to_dict()
+    }), 201
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
@@ -265,4 +292,4 @@ def delete_product(product_id):
         "status": "Success",
         "message": "Product deleted successfully.",
         "data": None
-    }), 200
+    }), 201
