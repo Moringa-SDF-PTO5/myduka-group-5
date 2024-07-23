@@ -1,16 +1,10 @@
-import React from 'react'
-import Login from './Components/Login'
-import "./App.css"
-import Sidebar from './Components/Sidebar'
-
-const App = () => {
-  
-  return (
-    <div>
-      <Login />
-      <Sidebar />
-    </div>
-  )
+function App() {
+    return (
+        <>
+            <h1>Myduka Inventory Application</h1>
+            <p>Welcome to the inventory management application.</p>
+        </>
+    )
 }
 
 export default App
