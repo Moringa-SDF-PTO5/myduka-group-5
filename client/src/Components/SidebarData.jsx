@@ -13,25 +13,25 @@ export const sidebarNav = [
         title: 'Dashboard',
         icon: <DashboardIcon />,
         link:'/dashboard',
-        allowedRoles: ['admin','store-admin','merchant']
+        allowedRoles: ['admin','clerk','merchant']
     },
     {
         title: 'Category',
         icon: <CategoryIcon />,
         link:'/category',
-        allowedRoles: ['admin','store-admin','merchant']
+        allowedRoles: ['admin','clerk','merchant']
     },
     {
         title: 'Products',
         icon: <CheckCircleIcon />,
         link:'/products',
-        allowedRoles: ['admin','store-admin','merchant']
+        allowedRoles: ['admin','clerk','merchant']
     },
     {
         title: 'Orders',
         icon: <InventoryIcon />,
         link:'/orders',
-        allowedRoles: ['admin','store-admin','merchant']
+        allowedRoles: ['admin','clerk','merchant']
     },
     {
         title: 'Users',
@@ -54,7 +54,7 @@ export const sidebarNav = [
         title: 'Logout',
         icon: <LogoutIcon />,
         link:'/logout',
-        allowedRoles: ['admin','store-admin','merchant']
+        allowedRoles: ['admin','clerk','merchant']
     }
 
 
