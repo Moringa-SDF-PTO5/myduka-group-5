@@ -1,6 +1,6 @@
 import pytest
 from app import create_app, db
-
+from flask_cors import CORS
 
 @pytest.fixture(scope='module')
 def test_client():
