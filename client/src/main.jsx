@@ -9,9 +9,19 @@ import Layout from "./Components/Layout.jsx";
 import "./index.css";
 import ProductsPage from "./features/products/page.jsx";
 import Dashboardpage from "./features/dashboard/page.jsx";
+import UsersPage from "./features/users/page.jsx";
+import {
+    QueryClient,
+    QueryClientProvider,
+  } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient()
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
     <Provider store={store}>
       <BrowserRouter>
         <Routes>
@@ -19,9 +29,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboardpage />} />
             <Route path="/products" element={<ProductsPage />} />
+            <Route path="/users" element={<UsersPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
     </Provider>
+    <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   </React.StrictMode>
 );
