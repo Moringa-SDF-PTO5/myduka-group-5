@@ -13,7 +13,6 @@ export default function Layout(){
         <Sidebar role={state.user.role}/>
         <main className='grow ml-16 md:ml-64 h-full lg:h-screen bg-gray-100 text-gray-900'>
             <header className='bg-gray-100 text-gray-900 border-b border-gray-300 p-4 flex justify-between items-center'>
-                <h1>Dashboard</h1>
                 <button className='text-2x1 text-dark'>
                     <Brightness4Icon />
                     <Brightness7Icon />
