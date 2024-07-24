@@ -26,6 +26,7 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off', // Disable rule requiring React in scope for JSX (for React 17+)
     'no-undef': 'off', // Turn off 'no-undef' for jest globals
+    "react/prop-types": "off" //turn off prop validation
   },
   overrides: [
     {
