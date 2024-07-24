@@ -3,6 +3,9 @@ from app import db
 from app.models import User, Invitation, Store, Product
 import uuid
 from datetime import datetime, timedelta, timezone
+from flask_cors import CORS
+# Enable CORS
+CORS(app)
 
 
 @app.route('/')
