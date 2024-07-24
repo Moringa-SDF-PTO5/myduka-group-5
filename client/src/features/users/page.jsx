@@ -3,10 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Container, Typography, Grid } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
-import { fetchUsers, getUsers } from '../userSlice';
+import { fetchUsers } from '../userSlice';
+// import { fetchUsers, getUsers } from '../userSlice';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+// import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import EditForm from './editForm';
 // import { fetchUsers, addUser, editUser, deleteUser } from '../../actions/userActions';
@@ -29,13 +30,15 @@ const USERS= [
   ]
 
 const UsersPage = () => {
+  const [open, setOpen] = React.useState(false);
+  const [userDetails,setUserDetails] = React.useState()
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
 
-  const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (details) => {
     setOpen(true);
+    setUserDetails(details)
   };
 
   const handleClose = () => {
@@ -66,12 +69,13 @@ const UsersPage = () => {
       headerName: 'Actions',
       flex: 1,
       renderCell: (params) => {
+        
         return(
         <div>
           <Button
             startIcon={<Edit />}
             color="primary"
-            onClick = {handleClickOpen}
+            onClick = {() => handleClickOpen(params.row)}
             // onClick={() => handleEdit(params.row.id)}
           >
           </Button>
@@ -93,7 +97,7 @@ const UsersPage = () => {
             <Typography variant="h4" component="h1" gutterBottom>
                 Manage Clerks
             </Typography>
-            <Button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 my-2 border border-gray-400 rounded shadow">
+            <Button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 my-2 border border-gray-400 rounded shadow">
                 Add User
             </Button>
       </div>
@@ -115,12 +119,8 @@ const UsersPage = () => {
         onClose={handleClose}
       >
         <DialogTitle>Edit User</DialogTitle>
-        <DialogContent>
-        <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
-            will send updates occasionally.
-          </DialogContentText>
-            <EditForm />   
+        <DialogContent>      
+            <EditForm userDetails={userDetails}/>   
         </DialogContent>
       </Dialog>
     </Container>
