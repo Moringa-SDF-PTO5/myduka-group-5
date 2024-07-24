@@ -5,6 +5,7 @@ from flask_cors import CORS
 @pytest.fixture(scope='module')
 def test_client():
     app = create_app('app.config.TestingConfig')
+    CORS(app)  
 
     with app.test_client() as client:
         with app.app_context():
