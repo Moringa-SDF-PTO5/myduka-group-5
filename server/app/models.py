@@ -1,15 +1,7 @@
-# app/models.py
 from app import db
-
 from datetime import datetime, timezone, timedelta
-
-from datetime import datetime, timezone,timedelta
 from sqlalchemy.orm import relationship
 
-
-
-def get_current_utc():
-    return datetime.now(timezone.utc)
 
 def get_current_utc():
     return datetime.now(timezone.utc)
@@ -45,7 +37,8 @@ class User(db.Model):
 
 class Invitation(db.Model):
     __tablename__ = 'invitations'
-    Invitation_id = db.Column(db.Integer, primary_key=True)
+    # Changed to lowercase to match the convention
+    invitation_id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=get_current_utc, nullable=False)
@@ -53,14 +46,8 @@ class Invitation(db.Model):
     is_used = db.Column(db.String(1), nullable=False, default='0')
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
-
-    # expiry date set to 72 hours after date invitation was created
-    def calculate_expiry_date(self):
-
-    # Set expiry date to 72 hours after date invitation was created : Winnie
     def calculate_expiry_date(self):
         # Calculate expiry date as 72 hours after created_at
-
         self.expiry_date = self.created_at + timedelta(hours=72)
 
     def __init__(self, token, email, expiry_date, user_id, is_used='0'):
@@ -71,11 +58,11 @@ class Invitation(db.Model):
         self.is_used = is_used
 
     def __repr__(self):
-        return f'<Invitation {self.Invitation_id}>'
+        return f'<Invitation {self.invitation_id}>'
 
     def to_dict(self):
         return {
-            'Invitation_id': self.Invitation_id,
+            'invitation_id': self.invitation_id,
             'token': self.token,
             'email': self.email,
             'created_at': self.created_at.isoformat() if self.created_at else None,
@@ -85,8 +72,6 @@ class Invitation(db.Model):
         }
 
 
-# Models : Winnie
-    
 class Store(db.Model):
     __tablename__ = 'stores'
 
@@ -103,12 +88,13 @@ class Store(db.Model):
         }
 
     products = relationship('Product', backref='store')
-    
+
     # temporarily commented out until inventory table merged by other team member
     # inventory = relationship('Inventory', backref='store')
 
     def __repr__(self):
-        return f'Store(id={self.store_id}, name={self.store_name}, name={self.location})'
+        return f'Store(id={self.store_id}, name={self.store_name}, location={self.location})'
+
 
 class Product(db.Model):
     __tablename__ = 'products'
@@ -130,4 +116,4 @@ class Product(db.Model):
         }
 
     def __repr__(self):
-        return f'Product(id={self.product_id}, product_name={self.product_name} , buying_price={self.buying_price}, selling_price={self.selling_price})'
+        return f'Product(id={self.product_id}, product_name={self.product_name}, buying_price={self.buying_price}, selling_price={self.selling_price})'
