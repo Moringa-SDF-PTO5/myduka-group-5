@@ -39,11 +39,6 @@ export const sidebarNav = [
         link:'/users',
         allowedRoles: ['admin']
     },
-    // {
-    //     title: 'Permission',
-    //     icon: <ManageAccountsIcon />,
-    //     link:'/permission'
-    // },
     {
         title: 'Store',
         icon: <StoreIcon />,
