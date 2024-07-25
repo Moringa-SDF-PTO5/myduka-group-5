@@ -1,7 +1,7 @@
 # app/routes.py
 from flask import request, jsonify, make_response, current_app as app
 from app import db
-from app.models import User, Invitation, Store, Product
+from app.models import User, Invitation, Store, Product, SupplyRequest
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -431,3 +431,45 @@ def delete_invitation(invitation_id):
         "message": "Invitation deleted successfully.",
         "data": None
     }), 200
+
+# Supply request routes
+@app.route('/api/supply_request', methods=['GET', 'POST'])
+def supply_requests():
+    if request.method == 'GET':
+        supply_requests = SupplyRequest.query.all()
+        requests_data = [supply_request.to_dict() for supply_request in supply_requests]
+
+        response = {
+            'message': 'Supply requests retrieved successfully.',
+            'status': 'success',
+            'data': requests_data
+        }
+
+        return make_response(response, 200)
+    elif request.method == 'POST':
+        try:
+            data = request.get_json()
+
+            new_request = SupplyRequest(
+                product_id=data['product_id'],
+                number_requested=data['number_requested']
+            )
+
+            db.session.add(new_request)
+            db.session.commit()
+
+            response = {
+                'message': 'Supply request added successfully.',
+                'status': 'success',
+                'data': new_request.to_dict()
+            }
+
+            return make_response(response, 201)
+        except Exception as error:
+            response = {
+                'message': 'Request not added.',
+                'status': 'error',
+                'data': None
+            }
+
+            return make_response(response, 500)

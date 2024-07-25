@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from app import create_app
 from datetime import datetime, timedelta
-from app.models import User, Invitation, Store, Product  # , Inventory, Request
+from app.models import User, Invitation, Store, Product, SupplyRequest  # , Inventory, Request
 from app import db
 
 
@@ -13,6 +13,14 @@ app = create_app()
 
 def create_seed_data():
     with app.app_context():
+        # Drop all the tables
+        print('Dropping tables...')
+        db.drop_all()
+
+        # Re-create the tables
+        print('Creating tables...')
+        db.create_all()
+
         # Create users
         user1 = User(username='Winnie', email='winnie.abuor@student.moringaschool.com', password_hash='password123', role='admin')
         user2 = User(username='Frasia', email='frasia.nyakundi@student.moringaschool.com', password_hash='securepassword', role='user')
@@ -21,6 +29,7 @@ def create_seed_data():
         user5 = User(username='Kantai', email='saiyalel.kantai@student.moringaschool.com', password_hash='securepassword', role='user')
 
         # Add Users 
+        print('Adding users...')
         db.session.add_all([user1, user2, user3, user4, user5])
         db.session.commit()
 
@@ -38,6 +47,7 @@ def create_seed_data():
                                  expiry_date=now + timedelta(hours=72), user_id=user5.user_id)
 
         # Add invitations
+        print('Adding invitations...')
         db.session.add_all([invitation1, invitation2, invitation3, invitation4, invitation5])
         db.session.commit()
 
@@ -49,19 +59,35 @@ def create_seed_data():
         store5 = Store(store_name='Store E', location='Thika Road')
 
         # Add stores to session to get store IDs after committing
+        print('Adding stores...')
         db.session.add_all([store1, store2, store3, store4, store5])
         db.session.commit()
 
         # Create products
-        product1 = Product(product_name='Bravo Dog food', buying_price=600, selling_price=920, store_id=store1.store_id)
-        product2 = Product(product_name='Basmati Rice', buying_price=210, selling_price=420, store_id=store2.store_id)
-        product3 = Product(product_name='Ketepa Tea Bags', buying_price=100, selling_price=150, store_id=store3.store_id)
-        product4 = Product(product_name='Java Esspresso Coffee', buying_price=480, selling_price=790, store_id=store4.store_id)
-        product5 = Product(product_name='Skippy Peanut Butter', buying_price=1000, selling_price=1500, store_id=store5.store_id)
+        product1 = Product(product_name='Bravo Dog food', buying_price=600, selling_price=920, store=store1)
+        product2 = Product(product_name='Basmati Rice', buying_price=210, selling_price=420, store=store2)
+        product3 = Product(product_name='Ketepa Tea Bags', buying_price=100, selling_price=150, store=store3)
+        product4 = Product(product_name='Java Esspresso Coffee', buying_price=480, selling_price=790, store=store4)
+        product5 = Product(product_name='Skippy Peanut Butter', buying_price=1000, selling_price=1500, store=store5)
+        product6 = Product(product_name='Bread', buying_price=100, selling_price=150, store=store5)
 
         # Add products to session
-        db.session.add_all([product1, product2, product3, product4, product5])
+        print('Adding products...')
+        db.session.add_all([product1, product2, product3, product4, product5, product6])
         db.session.commit()
+
+        # Create supply requests
+        request1 = SupplyRequest(product=product1, number_requested=20)
+        request2 = SupplyRequest(product=product3, number_requested=50)
+        request3 = SupplyRequest(product=product1, number_requested=10)
+        request4 = SupplyRequest(product=product4, number_requested=10)
+
+        # Add requests to the db
+        print('Adding supply requests...')
+        db.session.add_all([request1, request2, request3, request4])
+        db.session.commit()
+
+        print('Done seeding...')
 
         # Code temporarily commented until the models are merged with other teams work
         # # Create inventory
