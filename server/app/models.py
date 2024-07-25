@@ -91,6 +91,8 @@ class Store(db.Model, SerializerMixin):
     store_name = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(50), nullable=False)
 
+    # I've commented this section out since the return of this instance is now being handled by
+        # SerializerMixin
     # Converting store object to dictionary
     # def to_dict(self):
     #     return {
@@ -128,6 +130,8 @@ class Product(db.Model, SerializerMixin):
     # Get the supply requests that this product is a part of
     supply_requests = db.relationship('SupplyRequest', back_populates='product')
 
+    # I've commented this section out since the return of this instance is now being handled by
+        # SerializerMixin
     # Converting product object to dictionary
     # def to_dict(self):
     #     return {

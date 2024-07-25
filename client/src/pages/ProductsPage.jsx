@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { getAllProducts } from '../features/products/productSlice'
+import ProductItem from '../Components/ProductItem'
 
 const ProductsPage = () => {
     const { products, isLoading, isSuccess } = useSelector(
@@ -17,8 +18,28 @@ const ProductsPage = () => {
     }
     return (
         <div>
+            <div className='grid grid-cols-5 justify-between items-center gap-x-3'>
+                <div className='flex justify-center items-center font-bold text-black'>
+                    ID
+                </div>
+                <div className='flex justify-center items-center font-bold text-black'>
+                    Name
+                </div>
+                <div className='flex justify-center items-center font-bold text-black'>
+                    In Stock
+                </div>
+                <div className='flex justify-center items-center font-bold text-black'>
+                    Store Name
+                </div>
+                <div className='flex justify-center items-center font-bold text-black'>
+                    Action
+                </div>
+            </div>
             {products.map((product) => (
-                <p key={product.product_id}>{product.product_name}</p>
+                <ProductItem
+                    key={product.product_id}
+                    productItem={product}
+                />
             ))}
         </div>
     )

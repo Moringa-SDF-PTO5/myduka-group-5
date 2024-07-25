@@ -64,11 +64,11 @@ def create_seed_data():
         db.session.commit()
 
         # Create products
-        product1 = Product(product_name='Bravo Dog food', buying_price=600, selling_price=920, store=store1)
-        product2 = Product(product_name='Basmati Rice', buying_price=210, selling_price=420, store=store2)
-        product3 = Product(product_name='Ketepa Tea Bags', buying_price=100, selling_price=150, store=store3)
+        product1 = Product(product_name='Bravo Dog food', number_received=50, number_dispatched=10, buying_price=600, selling_price=920, store=store1)
+        product2 = Product(product_name='Basmati Rice', number_received=40, number_dispatched=5, buying_price=210, selling_price=420, store=store2)
+        product3 = Product(product_name='Ketepa Tea Bags', number_received=50, number_dispatched=20, buying_price=100, selling_price=150, store=store3)
         product4 = Product(product_name='Java Esspresso Coffee', buying_price=480, selling_price=790, store=store4)
-        product5 = Product(product_name='Skippy Peanut Butter', buying_price=1000, selling_price=1500, store=store5)
+        product5 = Product(product_name='Skippy Peanut Butter', number_received=35, number_dispatched=7, buying_price=1000, selling_price=1500, store=store5)
         product6 = Product(product_name='Bread', buying_price=100, selling_price=150, store=store5)
 
         # Add products to session
