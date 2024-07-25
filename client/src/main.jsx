@@ -15,6 +15,7 @@ import {
     QueryClientProvider,
   } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import RecordsPage from "./features/records/page.jsx";
 
 const queryClient = new QueryClient()
 
@@ -30,6 +31,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/dashboard" element={<Dashboardpage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/users" element={<UsersPage />} />
+            <Route path="/records" element={<RecordsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
