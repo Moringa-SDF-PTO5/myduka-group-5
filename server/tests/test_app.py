@@ -2,10 +2,11 @@ import pytest
 from app import create_app, db
 from flask_cors import CORS
 
+
 @pytest.fixture(scope='module')
 def test_client():
     app = create_app('app.config.TestingConfig')
-    CORS(app)  
+    CORS(app)
 
     with app.test_client() as client:
         with app.app_context():
