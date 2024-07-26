@@ -4,6 +4,7 @@ import LoginPage from './features/login/page.jsx'
 import Layout from './Components/Layout.jsx'
 import ProductsPage from './pages/ProductsPage.jsx'
 import Dashboardpage from './features/dashboard/page.jsx'
+import SupplyRequest from './pages/SupplyRequest.jsx'
 
 function App() {
     return (
@@ -26,6 +27,10 @@ function App() {
                         <Route
                             path='/products'
                             element={<ProductsPage />}
+                        />
+                        <Route
+                            path='/supply_requests'
+                            element={<SupplyRequest />}
                         />
                     </Route>
                 </Routes>

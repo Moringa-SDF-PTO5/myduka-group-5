@@ -4,7 +4,7 @@ function Home() {
     const navigate = useNavigate()
 
     return (
-        <div className='min-h-full flex flex-col justify-center items-center gap-y-5'>
+        <div className='min-h-screen flex flex-col justify-center items-center gap-y-5'>
             <h1 className='text-center text-5xl text-black'>
                 MyDuka Inventory Management
             </h1>

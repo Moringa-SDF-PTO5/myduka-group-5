@@ -433,7 +433,7 @@ def delete_invitation(invitation_id):
     }), 200
 
 # Supply request routes
-@app.route('/api/supply_request', methods=['GET', 'POST'])
+@app.route('/api/supply_requests', methods=['GET', 'POST'])
 def supply_requests():
     if request.method == 'GET':
         supply_requests = SupplyRequest.query.all()
@@ -469,7 +469,11 @@ def supply_requests():
             response = {
                 'message': 'Request not added.',
                 'status': 'error',
-                'data': None
+                'data': error
             }
 
             return make_response(response, 500)
+        
+@app.route('/api/supply_requests/<int:id>', methods=['PUT'])
+def update_supply_request(id):
+    supply_request = SupplyRequest.query.filter_by(id = id).first()

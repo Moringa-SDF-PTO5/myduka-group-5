@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import { colors } from '@mui/material'
 import daisyui from 'daisyui'
 
 export default {
@@ -7,6 +8,10 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['roboto', 'sans-serif'],
+            },
+            colors: {
+                'edit-blue': '#2E6C7F',
+                'delete-red': '#E93434',
             },
         },
     },
