@@ -1,3 +1,5 @@
+# app/models.py
+from datetime import datetime
 from app import db
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import relationship
@@ -37,15 +39,19 @@ class User(db.Model):
 
 class Invitation(db.Model):
     __tablename__ = 'invitations'
-    # Changed to lowercase to match the convention
-    invitation_id = db.Column(db.Integer, primary_key=True)
+    Invitation_id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, default=get_current_utc, nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=get_current_utc, nullable=False)
     expiry_date = db.Column(db.DateTime, nullable=False)
     is_used = db.Column(db.String(1), nullable=False, default='0')
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
+    # Foreign key relationship
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.user_id'), nullable=False)
+
+    # Set expiry date to 72 hours after date invitation was created : Winnie
     def calculate_expiry_date(self):
         # Calculate expiry date as 72 hours after created_at
         self.expiry_date = self.created_at + timedelta(hours=72)
@@ -58,19 +64,21 @@ class Invitation(db.Model):
         self.is_used = is_used
 
     def __repr__(self):
-        return f'<Invitation {self.invitation_id}>'
+        return f'<Invitation {self.Invitation_id}>'
 
     def to_dict(self):
         return {
-            'invitation_id': self.invitation_id,
+            'Invitation_id': self.Invitation_id,
             'token': self.token,
             'email': self.email,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'expiry_date': self.expiry_date.isoformat() if self.expiry_date else None,
+            'created_at': self.created_at,
+            'expiry_date': self.expiry_date,
             'is_used': self.is_used,
             'user_id': self.user_id
         }
 
+
+# Models : Winnie
 
 class Store(db.Model):
     __tablename__ = 'stores'
@@ -93,7 +101,7 @@ class Store(db.Model):
     # inventory = relationship('Inventory', backref='store')
 
     def __repr__(self):
-        return f'Store(id={self.store_id}, name={self.store_name}, location={self.location})'
+        return f'Store(id={self.store_id}, name={self.store_name}, name={self.location})'
 
 
 class Product(db.Model):
@@ -103,7 +111,8 @@ class Product(db.Model):
     product_name = db.Column(db.String(50), nullable=False)
     buying_price = db.Column(db.Integer, nullable=False)
     selling_price = db.Column(db.Integer, nullable=False)
-    store_id = db.Column(db.Integer, db.ForeignKey('stores.store_id'), nullable=False)
+    store_id = db.Column(db.Integer, db.ForeignKey(
+        'stores.store_id'), nullable=False)
 
     # Converting product object to dictionary
     def to_dict(self):
@@ -116,4 +125,41 @@ class Product(db.Model):
         }
 
     def __repr__(self):
-        return f'Product(id={self.product_id}, product_name={self.product_name}, buying_price={self.buying_price}, selling_price={self.selling_price})'
+        return f'Product(id={self.product_id}, product_name={self.product_name} , buying_price={self.buying_price}, selling_price={self.selling_price})'
+
+
+class Inventory(db.Model):
+    __tablename__ = 'inventory'
+    inventory_id = db.Column(db.Integer, primary_key=True)
+    inventory_name = db.Column(db.String(100), nullable=False)
+    store_id = db.Column(db.Integer, db.ForeignKey(
+        'stores.store_id'), nullable=False)
+    quantity_received = db.Column(db.Integer, nullable=False)
+    quantity_in_stock = db.Column(db.Integer, nullable=False)
+    quantity_spoilt = db.Column(db.Integer, nullable=False)
+    payment_status = db.Column(db.Integer, nullable=False)
+
+    # Relationships
+    store = db.relationship(
+        'Store', backref=db.backref('inventories', lazy=True))
+
+    def __repr__(self):
+        return f'<Inventory {self.inventory_name}>'
+
+
+class Request(db.Model):
+    __tablename__ = 'requests'
+    request_id = db.Column(db.Integer, primary_key=True)
+    inventory_id = db.Column(db.Integer, db.ForeignKey(
+        'inventory.inventory_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.user_id'), nullable=False)
+    request_date = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(50), nullable=False)
+
+    # Relationships
+    inventory = db.relationship('Inventory', backref=db.backref('requests', lazy=True))
+    user = db.relationship('User', backref=db.backref('requests', lazy=True))
+
+    def __repr__(self):
+        return f'<Request {self.request_id}>'
