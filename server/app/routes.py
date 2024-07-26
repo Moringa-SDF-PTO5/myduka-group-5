@@ -1,11 +1,12 @@
+# app/routes.py
 from flask import request, jsonify, make_response, current_app as app
 from app import db
 from app.models import User, Invitation, Store, Product
 import uuid
 from datetime import datetime, timedelta, timezone
 from flask_cors import CORS
-# Enable CORS
-CORS(app)
+# Ensure CORS is applied to all routes
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route('/')
@@ -16,10 +17,9 @@ def home():
 # User routes
 
 
-@app.route('/api/users', methods=['GET'])
+@app.route('/users', methods=['GET'])
 def list_users():
     users = User.query.all()
-
     users_data = [user.to_dict() for user in users]
     return jsonify({
         "status": "success",
@@ -28,8 +28,9 @@ def list_users():
     }), 200
 
 
-@app.route('/api/users/<int:user_id>', methods=['GET'])
+@app.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({
@@ -37,6 +38,7 @@ def get_user(user_id):
             "message": "User not found.",
             "data": None
         }), 404
+
     return jsonify({
         "status": "Success",
         "message": "User retrieved successfully.",
@@ -44,46 +46,54 @@ def get_user(user_id):
     }), 200
 
 
-@app.route('/api/users', methods=['POST'])
+@app.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    if not all(key in data for key in ['username', 'email']):
+    username = data.get('username')
+    email = data.get('email')
+    password_hash = data.get('password_hash')
+    role = data.get('role')
+    is_active = data.get('is_active')
+    confirmed_admin = data.get('confirmed_admin')
+
+    if not (
+        username and email and password_hash and role and
+        is_active is not None and confirmed_admin is not None
+    ):
         return jsonify({
-            'status': 'Failed',
-            'message': 'Username and email are required.',
-            'data': None
+            "status": "Failed",
+            "message": "Please provide all required fields.",
+            "data": None
         }), 400
 
+    new_user = User(
+        username=username,
+        email=email,
+        password_hash=password_hash,
+        role=role,
+        is_active=is_active,
+        confirmed_admin=confirmed_admin
+    )
+
     try:
-        new_user = User(
-            username=data.get('username'),
-            email=data.get('email'),
-            password_hash=data.get('password_hash', None),
-            role=data.get('role', 'user'),
-            is_active=data.get('is_active', True),
-            confirmed_admin=data.get('confirmed_admin', False)
-        )
         db.session.add(new_user)
         db.session.commit()
-
-        response_data = {
-            'status': 'Success',
-            'message': 'User created successfully.',
-            'data': new_user.to_dict()
-        }
-        print(response_data)
-
-        return jsonify(response_data), 201
     except Exception as e:
-        print(f"Error: {e}")
+        db.session.rollback()
         return jsonify({
-            'status': 'Failed',
-            'message': 'An error occurred while creating the user.',
-            'data': None
+            "status": "Failed",
+            "message": "An error occurred while adding the user.",
+            "data": str(e)
         }), 500
 
+    return jsonify({
+        "status": "Success",
+        "message": "User created successfully.",
+        "data": new_user.to_dict()
+    }), 201
 
-@app.route('/api/users/<int:user_id>', methods=['PUT'])
+
+@app.route('/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -109,7 +119,7 @@ def update_user(user_id):
     }), 200
 
 
-@app.route('/api/users/<int:user_id>', methods=['DELETE'])
+@app.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -128,13 +138,15 @@ def delete_user(user_id):
         "data": None
     }), 200
 
+
+# Routes:: Winnie
+
 # Routes for stores
-
-
 @app.route('/api/stores', methods=['GET'])
 def get_stores():
     stores = Store.query.all()
-    stores_data = [store.to_dict() for store in stores]
+    stores_data = [store.to_dict()
+                   for store in stores]  # Serialize each Store object
     return jsonify({
         "status": "success",
         "message": "success",
@@ -168,16 +180,13 @@ def create_store():
             'data': None
         }), 400
 
-    new_store = Store(
-        store_name=data['store_name'],
-        location=data['location']
-    )
+    new_store = Store(store_name=data['store_name'], location=data['location'])
     db.session.add(new_store)
     db.session.commit()
     return jsonify({
         "status": "success",
         "message": "Store added successfully",
-        "data": new_store.to_dict()  # Fix data variable to the newly created store
+        "data": data.to_dict()
     }), 201
 
 
@@ -198,8 +207,8 @@ def update_store(store_id):
     return jsonify({
         "status": "success",
         "message": "Store updated successfully",
-        "data": store.to_dict()  # Fix data variable to the updated store
-    }), 200
+        "data": data.to_dict()
+    }), 201
 
 
 @app.route('/api/stores/<int:store_id>', methods=['DELETE'])
@@ -228,11 +237,12 @@ def delete_store(store_id):
 def get_products():
     products = Product.query.all()
     products_data = [product.to_dict() for product in products]
+
     return jsonify({
         "status": "success",
         "message": "success",
         "data": products_data
-    }), 200
+    }), 201
 
 
 @app.route('/api/products/<int:product_id>', methods=['GET'])
@@ -255,12 +265,7 @@ def get_product(product_id):
 @app.route('/api/products', methods=['POST'])
 def create_product():
     data = request.get_json()
-    if (
-        'product_name' not in data or
-        'buying_price' not in data or
-        'selling_price' not in data or
-        'store_id' not in data
-    ):
+    if 'product_name' not in data or 'buying_price' not in data or 'selling_price' not in data or 'store_id' not in data:
         return jsonify({
             'status': 'Failed',
             'message': 'product_name, buying_price, selling_price, and store_id are required',
@@ -279,7 +284,7 @@ def create_product():
     return jsonify({
         "status": "success",
         "message": "Product added successfully",
-        "data": new_product.to_dict()  # Fix data variable to the newly created product
+        "data": data.to_dict()
     }), 201
 
 
@@ -302,8 +307,8 @@ def update_product(product_id):
     return jsonify({
         "status": "success",
         "message": "Product updated successfully",
-        "data": product.to_dict()  # Fix data variable to the updated product
-    }), 200
+        "data": data.to_dict()
+    }), 201
 
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
@@ -323,12 +328,11 @@ def delete_product(product_id):
         "status": "Success",
         "message": "Product deleted successfully.",
         "data": None
-    }), 200
-
+    }), 201
 # Invitation routes
 
 
-@app.route('/api/invitations', methods=['GET'])
+@app.route('/invitations', methods=['GET'])
 def list_invitations():
     invitations = Invitation.query.all()
     invitations_data = [invitation.to_dict() for invitation in invitations]
@@ -339,8 +343,9 @@ def list_invitations():
     }), 200
 
 
-@app.route('/api/invitations/<int:invitation_id>', methods=['GET'])
+@app.route('/invitations/<int:invitation_id>', methods=['GET'])
 def get_invitation(invitation_id):
+    # Retrieve the invitation by ID
     invitation = Invitation.query.get(invitation_id)
     if not invitation:
         return jsonify({
@@ -356,11 +361,7 @@ def get_invitation(invitation_id):
     }), 200
 
 
-def get_current_utc():
-    return datetime.now(timezone.utc)
-
-
-@app.route('/api/invitations', methods=['POST'])
+@app.route('/invitations', methods=['POST'])
 def create_invitation():
     data = request.get_json()
     email = data.get('email')
@@ -368,74 +369,40 @@ def create_invitation():
 
     if not email or not user_id:
         return jsonify({
-            'status': 'Failed',
-            'message': 'Missing required fields.',
-            'data': None
+            "status": "Failed",
+            "message": "Email and user_id are required.",
+            "data": None
         }), 400
 
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({
-            'status': 'Failed',
-            'message': 'User not found.',
-            'data': None
-        }), 404
-
     token = str(uuid.uuid4())
-    expiry_date = get_current_utc() + timedelta(hours=72)
+    expiry_date = datetime.now(timezone.utc) + timedelta(days=7)
 
-    invitation = Invitation(
+    new_invitation = Invitation(
         token=token,
         email=email,
-        user_id=user_id,
-        expiry_date=expiry_date
+        expiry_date=expiry_date,
+        user_id=user_id
     )
 
     try:
-        db.session.add(invitation)
+        db.session.add(new_invitation)
         db.session.commit()
-        return jsonify({
-            'status': 'Success',
-            'message': 'Invitation created successfully.',
-            'data': invitation.to_dict()
-        }), 201
-    except Exception:
-        db.session.rollback()
-        return jsonify({
-            'status': 'Failed',
-            'message': 'An error occurred while adding the invitation.',
-            'data': 'An error occurred.'
-        }), 500
-
-
-@app.route('/api/invitations/<int:invitation_id>', methods=['DELETE'])
-def delete_invitation(invitation_id):
-    invitation = Invitation.query.get(invitation_id)
-    if not invitation:
-        return jsonify({
-            'status': 'Failed',
-            'message': 'Invitation not found.',
-            'data': None
-        }), 404
-
-    try:
-        db.session.delete(invitation)
-        db.session.commit()
-        return jsonify({
-            'status': 'Success',
-            'message': 'Invitation deleted successfully.',
-            'data': None
-        }), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({
-            'status': 'Failed',
-            'message': 'An error occurred while deleting the invitation.',
-            'data': str(e)
+            "status": "Failed",
+            "message": "An error occurred while adding the invitation.",
+            "data": str(e)
         }), 500
 
+    return jsonify({
+        "status": "Success",
+        "message": "Invitation created successfully.",
+        "data": new_invitation.to_dict()
+    }), 201
 
-@app.route('/api/invitations/<int:invitation_id>', methods=['PUT'])
+
+@app.route('/invitations/<int:invitation_id>', methods=['PUT'])
 def update_invitation(invitation_id):
     invitation = Invitation.query.get(invitation_id)
     if not invitation:
@@ -456,4 +423,24 @@ def update_invitation(invitation_id):
         "status": "Success",
         "message": "Invitation updated successfully.",
         "data": invitation.to_dict()
+    }), 200
+
+
+@app.route('/invitations/<int:invitation_id>', methods=['DELETE'])
+def delete_invitation(invitation_id):
+    invitation = Invitation.query.get(invitation_id)
+    if not invitation:
+        return jsonify({
+            "status": "Failed",
+            "message": "Invitation not found.",
+            "data": None
+        }), 404
+
+    db.session.delete(invitation)
+    db.session.commit()
+
+    return jsonify({
+        "status": "Success",
+        "message": "Invitation deleted successfully.",
+        "data": None
     }), 200
