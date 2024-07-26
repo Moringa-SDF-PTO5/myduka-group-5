@@ -139,7 +139,6 @@ class Inventory(db.Model):
     payment_status = db.Column(db.String(10), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    #Converting Inventory object to dictionary
     def to_dict(self):
         return {
             'inventory_id': self.inventory_id,
@@ -149,12 +148,11 @@ class Inventory(db.Model):
             'quantity_in_stock': self.quantity_in_stock,
             'quantity_spoilt': self.quantity_spoilt,
             'payment_status': self.payment_status,
+            'created_at': self.created_at
         }
-    inventory = relationship('Inventory', backref='store')
-
-    def __repr__(self):
-        return f'inventory(id={self.inventory_id}, product_id={self.product_id} , store_id={self.store_id}, quantity_received= {self.quantity_received},quantity_in_stock={self.quantity_in_stock},quantity_spoilt={self.quantity_spoilt},payment_status= {self.payment_status})'
     
+    def __repr__(self):
+        return f'<Inventory {self.inventory_id}>'
 
 class SupplyRequest(db.Model):
     __tablename__ = 'supply_requests'
@@ -164,15 +162,14 @@ class SupplyRequest(db.Model):
     request_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(10), default='pending')
 
-    #Converting Inventory object to dictionary
     def to_dict(self):
         return {
             'request_id': self.request_id,
             'inventory_id': self.inventory_id,
             'user_id': self.user_id,
             'request_date': self.request_date,
+            'status': self.status
         }
-    supplyrequest = relationship('SupplyRequest', backref='store')
-
+    
     def __repr__(self):
-        return f'request(id={self.request_id}, inventory_id={self.inventory_id},user_id={self.user_id},request_date={self.request_date})'
+        return f'<SupplyRequest {self.request_id}>'
