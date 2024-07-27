@@ -4,6 +4,9 @@ from app import db
 from app.models import User, Invitation, Store, Product
 import uuid
 from datetime import datetime, timedelta, timezone
+from flask_cors import CORS
+# Ensure CORS is applied to all routes
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route('/')
@@ -142,12 +145,14 @@ def delete_user(user_id):
 @app.route('/api/stores', methods=['GET'])
 def get_stores():
     stores = Store.query.all()
-    stores_data = [store.to_dict() for store in stores]  # Serialize each Store object
+    stores_data = [store.to_dict()
+                   for store in stores]  # Serialize each Store object
     return jsonify({
         "status": "success",
         "message": "success",
         "data": stores_data
     }), 200
+
 
 @app.route('/api/stores/<int:store_id>', methods=['GET'])
 def get_store(store_id):
@@ -163,7 +168,7 @@ def get_store(store_id):
         "message": "success",
         "data": store.to_dict()
     }), 200
-    
+
 
 @app.route('/api/stores', methods=['POST'])
 def create_store():
@@ -174,7 +179,7 @@ def create_store():
             'message': 'Store_name and location fields are required',
             'data': None
         }), 400
-    
+
     new_store = Store(store_name=data['store_name'], location=data['location'])
     db.session.add(new_store)
     db.session.commit()
@@ -183,6 +188,7 @@ def create_store():
         "message": "Store added successfully",
         "data": data.to_dict()
     }), 201
+
 
 @app.route('/api/stores/<int:store_id>', methods=['PUT'])
 def update_store(store_id):
@@ -193,7 +199,7 @@ def update_store(store_id):
             'message': 'Store not found',
             'data': None
         }), 404
-    
+
     data = request.get_json()
     store.store_name = data.get('store_name', store.store_name)
     store.location = data.get('location', store.location)
@@ -204,6 +210,7 @@ def update_store(store_id):
         "data": data.to_dict()
     }), 201
 
+
 @app.route('/api/stores/<int:store_id>', methods=['DELETE'])
 def delete_store(store_id):
     store = Store.query.get(store_id)
@@ -213,10 +220,10 @@ def delete_store(store_id):
             'message': 'Store not found',
             'data': None
         }), 404
-    
+
     db.session.delete(store)
     db.session.commit()
-    
+
     return jsonify({
         "status": "Success",
         "message": "Store deleted successfully.",
@@ -224,16 +231,19 @@ def delete_store(store_id):
     }), 200
 
 # Routes for products
+
+
 @app.route('/api/products', methods=['GET'])
 def get_products():
     products = Product.query.all()
     products_data = [product.to_dict() for product in products]
-    
+
     return jsonify({
         "status": "success",
         "message": "success",
         "data": products_data
     }), 201
+
 
 @app.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
@@ -244,12 +254,13 @@ def get_product(product_id):
             'message': 'Product not found',
             'data': None
         }), 404
-    
+
     return jsonify({
         "status": "success",
         "message": "success",
         "data": product.to_dict()
     }), 200
+
 
 @app.route('/api/products', methods=['POST'])
 def create_product():
@@ -260,7 +271,7 @@ def create_product():
             'message': 'product_name, buying_price, selling_price, and store_id are required',
             'data': None
         }), 400
-    
+
     new_product = Product(
         product_name=data['product_name'],
         buying_price=data['buying_price'],
@@ -269,12 +280,13 @@ def create_product():
     )
     db.session.add(new_product)
     db.session.commit()
-    
+
     return jsonify({
         "status": "success",
         "message": "Product added successfully",
         "data": data.to_dict()
     }), 201
+
 
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
@@ -285,18 +297,19 @@ def update_product(product_id):
             'message': 'Product not found',
             'data': None
         }), 404
-    
+
     data = request.get_json()
     product.product_name = data.get('product_name', product.product_name)
     product.buying_price = data.get('buying_price', product.buying_price)
     product.selling_price = data.get('selling_price', product.selling_price)
     db.session.commit()
-    
+
     return jsonify({
         "status": "success",
         "message": "Product updated successfully",
         "data": data.to_dict()
     }), 201
+
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
@@ -307,10 +320,10 @@ def delete_product(product_id):
             'message': 'Product not found',
             'data': None
         }), 404
-    
+
     db.session.delete(product)
     db.session.commit()
-    
+
     return jsonify({
         "status": "Success",
         "message": "Product deleted successfully.",

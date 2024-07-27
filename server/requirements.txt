@@ -11,6 +11,7 @@ Flask==3.0.3
 Flask-Cors==4.0.1
 Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
+Flask-Testing==0.8.1
 greenlet==3.0.3
 importlib_metadata==8.0.0
 importlib_resources==6.4.0
@@ -32,6 +33,7 @@ python-dotenv==1.0.1
 pytz==2024.1
 SQLAlchemy==2.0.29
 sqlalchemy-serializer==1.4.22
+tomli==2.0.1
 typing_extensions==4.12.2
 virtualenv==20.26.3
 Werkzeug==3.0.3
