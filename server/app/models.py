@@ -158,7 +158,8 @@ class Request(db.Model):
     status = db.Column(db.String(50), nullable=False)
 
     # Relationships
-    inventory = db.relationship('Inventory', backref=db.backref('requests', lazy=True))
+    inventory = db.relationship(
+        'Inventory', backref=db.backref('requests', lazy=True))
     user = db.relationship('User', backref=db.backref('requests', lazy=True))
 
     def __repr__(self):

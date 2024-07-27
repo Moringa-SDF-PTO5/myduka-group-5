@@ -61,7 +61,8 @@ def seed_users():
 def seed_invitations():
     now = datetime.utcnow()
     invitations = [
-        {'token': 'token123', 'email': 'winnie.abuor@student.moringaschool.com', 'username': 'Winnie'},
+        {'token': 'token123', 'email': 'winnie.abuor@student.moringaschool.com',
+            'username': 'Winnie'},
         {'token': 'token456', 'email': 'frasia.nyakundi@student.moringaschool.com',
             'username': 'Frasia'},
         {'token': 'token789', 'email': 'barbara.ndiba@student.moringaschool.com',
@@ -73,7 +74,8 @@ def seed_invitations():
     ]
 
     for invitation_data in invitations:
-        user = User.query.filter_by(username=invitation_data['username']).first()
+        user = User.query.filter_by(
+            username=invitation_data['username']).first()
         if user:
             invitation = Invitation(
                 token=invitation_data['token'],
@@ -119,7 +121,8 @@ def seed_products():
     ]
 
     for product_data in products:
-        store = Store.query.filter_by(store_name=product_data['store_name']).first()
+        store = Store.query.filter_by(
+            store_name=product_data['store_name']).first()
         if store:
             product = Product(
                 product_name=product_data['product_name'],
@@ -146,7 +149,8 @@ def seed_inventory():
     ]
 
     for inventory_data in inventories:
-        store = Store.query.filter_by(store_name=inventory_data['store_name']).first()
+        store = Store.query.filter_by(
+            store_name=inventory_data['store_name']).first()
         if store:
             inventory = Inventory(
                 inventory_name=inventory_data['inventory_name'],
@@ -162,7 +166,8 @@ def seed_inventory():
 
 def seed_requests():
     requests = [
-        {'inventory_name': 'Bravo Dog food', 'username': 'Winnie', 'status': 'Pending'},
+        {'inventory_name': 'Bravo Dog food',
+            'username': 'Winnie', 'status': 'Pending'},
         {'inventory_name': 'Basmati Rice', 'username': 'Frasia', 'status': 'Approved'}
     ]
 
