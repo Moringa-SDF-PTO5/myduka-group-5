@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { getAllSupplyRequests } from '../features/supplyRequests/supReqSlice'
+import {
+    getAllSupplyRequests,
+    editSupplyRequest,
+} from '../features/supplyRequests/supReqSlice'
 import SupReqItem from '../Components/SupReqItem'
 
 function SupplyRequest() {
@@ -11,7 +14,20 @@ function SupplyRequest() {
         dispatch(getAllSupplyRequests())
     }, [dispatch])
 
-    console.log(supplyRequests)
+    // console.log(supplyRequests)
+
+    function handleApproval(item) {
+        const id = item.id
+        const supReqData = {
+            id,
+            product_id: item.product_id,
+            number_requested: item.number_requested,
+            is_approved: !item.is_approved,
+        }
+
+        dispatch(editSupplyRequest({ id, supReqData }))
+        dispatch(getAllSupplyRequests())
+    }
 
     return (
         <div>
@@ -36,6 +52,7 @@ function SupplyRequest() {
                         <SupReqItem
                             key={request.id}
                             supReqItem={request}
+                            handleApproval={handleApproval}
                         />
                     ))}
                 </div>

@@ -29,11 +29,28 @@ async function getAllSupplyRequests() {
 }
 
 //Edit one supply request
-async function editSupplyRequest() {}
+async function editSupplyRequest(id, supReqData) {
+    const response = await fetch(`${SUPPLY_REQUEST_URL}/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(supReqData),
+    })
+
+    const responseData = await response.json()
+
+    if (responseData.data === null) {
+        throw new Error(responseData.message)
+    }
+
+    return responseData.data
+}
 
 const supReqService = {
     addSupplyRequest,
     getAllSupplyRequests,
+    editSupplyRequest,
 }
 
 export default supReqService
