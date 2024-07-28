@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 from app import create_app, db
-from app.models import User, Invitation, Store, Product, Inventory, Request
+from app.models import User, Invitation, Store, Product,Inventory, Request
 
 app = create_app()
 

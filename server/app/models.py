@@ -1,6 +1,6 @@
-from datetime import datetime, timezone, timedelta
 from app import db
-from sqlalchemy.orm import relationship
+from datetime import datetime, timezone, timedelta
+from sqlalchemy_serializer import SerializerMixin
 
 
 def get_current_utc():
@@ -9,7 +9,7 @@ def get_current_utc():
 
 class User(db.Model):
     __tablename__ = 'users'
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password_hash = db.Column(db.String(128), nullable=False)
@@ -17,8 +17,8 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     confirmed_admin = db.Column(db.Boolean, default=False)
 
-    # Define the relationship
-    invitations = db.relationship('Invitation', backref='user', lazy=True)
+    # Define the relationship with a unique backref name
+    invitations = db.relationship('Invitation', backref='inviter', lazy=True)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -37,18 +37,20 @@ class User(db.Model):
 
 class Invitation(db.Model):
     __tablename__ = 'invitations'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    token = db.Column(db.String(36), unique=True, nullable=False)
-    email = db.Column(db.String(120), nullable=False)
+    invitation_id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=get_current_utc, nullable=False)
     expiry_date = db.Column(db.DateTime, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.user_id'), nullable=False)
-    is_used = db.Column(db.String(1), default='0', nullable=False)
+    is_used = db.Column(db.String(1), nullable=False, default='0')
 
-    # Define the relationship
-    user = db.relationship(
-        'User', backref=db.backref('invitations', lazy=True))
+    # Foreign key relationship
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+
+    # Set expiry date to 72 hours after date invitation was created
+    def calculate_expiry_date(self):
+        # Calculate expiry date as 72 hours after created_at
+        self.expiry_date = self.created_at + timedelta(hours=72)
 
     def __init__(self, token, email, expiry_date, user_id, is_used='0'):
         self.token = token
@@ -57,99 +59,68 @@ class Invitation(db.Model):
         self.user_id = user_id
         self.is_used = is_used
 
-    def calculate_expiry_date(self):
-        # Calculate expiry date as 72 hours after created_at
-        if not self.expiry_date:
-            self.expiry_date = datetime.now(timezone.utc) + timedelta(hours=72)
-
     def __repr__(self):
-        return f'<Invitation {self.id}>'
+        return f'<Invitation {self.invitation_id}>'
 
     def to_dict(self):
         return {
-            'id': self.id,
+            'invitation_id': self.invitation_id,
             'token': self.token,
             'email': self.email,
-            'expiry_date': self.expiry_date.isoformat(),
-            'user_id': self.user_id,
-            'is_used': self.is_used
+            'created_at': self.created_at,
+            'expiry_date': self.expiry_date,
+            'is_used': self.is_used,
+            'user_id': self.user_id
         }
 
 
-class Store(db.Model):
+class Store(db.Model, SerializerMixin):
     __tablename__ = 'stores'
-    store_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    serialize_rules = ('-products.store',)
+
+    store_id = db.Column(db.Integer, primary_key=True)
     store_name = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(50), nullable=False)
 
-    products = relationship('Product', backref='store')
-    # Temporarily commented out until inventory table merged by another team member
-    # inventory = relationship('Inventory', backref='store')
-
-    def to_dict(self):
-        return {
-            'store_id': self.store_id,
-            'store_name': self.store_name,
-            'location': self.location
-        }
+    products = db.relationship('Product', back_populates='store')
 
     def __repr__(self):
         return f'Store(id={self.store_id}, name={self.store_name}, location={self.location})'
 
 
-class Product(db.Model):
+class Product(db.Model, SerializerMixin):
     __tablename__ = 'products'
-    product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    serialize_rules = ('-store.products', '-supply_requests.product',)
+
+    product_id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(50), nullable=False)
+    number_received = db.Column(db.Integer, default=0)
+    number_dispatched = db.Column(db.Integer, default=0)
+    is_paid = db.Column(db.Boolean, default=False)
     buying_price = db.Column(db.Integer, nullable=False)
     selling_price = db.Column(db.Integer, nullable=False)
-    store_id = db.Column(db.Integer, db.ForeignKey(
-        'stores.store_id'), nullable=False)
+    store_id = db.Column(db.Integer, db.ForeignKey('stores.store_id'), nullable=False)
 
-    def to_dict(self):
-        return {
-            'product_id': self.product_id,
-            'product_name': self.product_name,
-            'buying_price': self.buying_price,
-            'selling_price': self.selling_price,
-            'store_id': self.store_id
-        }
+    store = db.relationship('Store', back_populates='products')
+    supply_requests = db.relationship('SupplyRequest', back_populates='product')
 
     def __repr__(self):
         return f'Product(id={self.product_id}, product_name={self.product_name}, buying_price={self.buying_price}, selling_price={self.selling_price})'
 
 
-class Inventory(db.Model):
-    __tablename__ = 'inventory'
-    inventory_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    inventory_name = db.Column(db.String(100), nullable=False)
-    store_id = db.Column(db.Integer, db.ForeignKey(
-        'stores.store_id'), nullable=False)
-    quantity_received = db.Column(db.Integer, nullable=False)
-    quantity_in_stock = db.Column(db.Integer, nullable=False)
-    quantity_spoilt = db.Column(db.Integer, nullable=False)
-    payment_status = db.Column(db.Integer, nullable=False)
+class SupplyRequest(db.Model, SerializerMixin):
+    __tablename__ = 'supply_requests'
 
-    store = db.relationship(
-        'Store', backref=db.backref('inventories', lazy=True))
+    serialize_rules = ('-product.supply_requests',)
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    number_requested = db.Column(db.Integer, nullable=False, default=0)
+    is_approved = db.Column(db.Boolean, default=False)
+
+    product = db.relationship('Product', back_populates='supply_requests')
 
     def __repr__(self):
-        return f'<Inventory {self.inventory_name}>'
-
-
-class Request(db.Model):
-    __tablename__ = 'requests'
-    request_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    inventory_id = db.Column(db.Integer, db.ForeignKey(
-        'inventory.inventory_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.user_id'), nullable=False)
-    request_date = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), nullable=False)
-
-    inventory = db.relationship(
-        'Inventory', backref=db.backref('requests', lazy=True))
-    user = db.relationship('User', backref=db.backref('requests', lazy=True))
-
-    def __repr__(self):
-        return f'<Request {self.request_id}>'
+        return f'SupplyRequest(id={self.id}, product_id={self.product_id}, number_requested={self.number_requested}, is_approved={self.is_approved})'
