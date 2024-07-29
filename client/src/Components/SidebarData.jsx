@@ -46,9 +46,9 @@ export const sidebarNav = [
         allowedRoles: ['admin','clerk','merchant']
     },
     {
-        title: 'Store',
+        title: 'Stores',
         icon: <StoreIcon />,
-        link:'/store',
+        link:'/stores',
         allowedRoles: ['admin']
     },
     {
