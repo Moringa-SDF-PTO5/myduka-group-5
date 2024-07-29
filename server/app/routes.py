@@ -436,7 +436,7 @@ def delete_invitation(invitation_id):
 @app.route('/api/supply_requests', methods=['GET', 'POST'])
 def supply_requests():
     if request.method == 'GET':
-        supply_requests = SupplyRequest.query.all()
+        supply_requests = SupplyRequest.query.order_by(SupplyRequest.id).all()
         requests_data = [supply_request.to_dict() for supply_request in supply_requests]
 
         response = {
@@ -474,6 +474,49 @@ def supply_requests():
 
             return make_response(response, 500)
         
-@app.route('/api/supply_requests/<int:id>', methods=['PUT'])
-def update_supply_request(id):
+@app.route('/api/supply_requests/<int:id>', methods=['GET', 'PATCH'])
+def one_supply_request(id):
     supply_request = SupplyRequest.query.filter_by(id = id).first()
+    if supply_request:
+        if request.method == 'GET':
+            response = {
+                'message': 'Supply request retreived succeddfully.',
+                'status': 'success',
+                'data': supply_request.to_dict()
+            }
+
+            return make_response(response, 200)
+        elif request.method == 'PATCH':
+            try:
+                data = request.get_json()
+
+                for key in data:
+                    setattr(supply_request, key, data[key])
+
+                db.session.add(supply_request)
+                db.session.commit()
+
+                updated_supply_request = supply_request.to_dict()
+
+                response = {
+                    'message': 'Supply request updated successfully.',
+                    'status': 'success',
+                    'data': updated_supply_request
+                }
+                return make_response(response, 200)
+            except Exception as error:
+                response = {
+                    'message': 'Supply request approval not edited.',
+                    'status': 'error',
+                    'data': error
+                }
+
+                return make_response(response, 400)
+    else:
+        response = {
+            'message': 'Supply request not found.',
+            'status': 'error',
+            'data': None
+        }
+
+        return make_response(response, 404)
