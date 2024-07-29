@@ -25,6 +25,7 @@ def login():
 
     return jsonify({"message": "Login successful", "user": user.username}), 200
 
+
 # User routes
 @app.route('/users', methods=['GET'])
 def list_users():
