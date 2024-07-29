@@ -26,7 +26,7 @@ const Dashboardpage = () => {
             <h3 className='text-lg font-semibold mb-4'>Sales Data</h3>
             <Line data = {dataLine} />
         </div>
-        <div className=' grid grid-cols-1 lg:grid-cols-2'>
+        <div className='bg-white p-4 rounded-lg shadow-md'>
             <h3 className='text-lg font-semibold mb-4'>Products Data</h3>
             <Bar data = {dataBar} />
         </div>

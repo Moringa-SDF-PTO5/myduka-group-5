@@ -13,7 +13,7 @@ const Sidebar = ({ role }) => {
     const navigate = useNavigate()
 
     return (
-        <aside className='bg-gray-100 text-gray-900 h-screen px-4 w-16 md:w-64 border-r border-gray-300'>
+        <aside className='bg-gray-100 text-gray-900 h-screen px-4 w- md:w-64 border-r border-gray-300'>
             <header className='h-16 flex items-center justify-center'>
                 <h1 className='text-2x1 font-bold hidden md:block'>MyDuka</h1>
             </header>

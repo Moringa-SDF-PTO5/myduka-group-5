@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, Container, Typography, Grid } from '@mui/material';
+import { Button, Container, Typography, Grid, DialogActions } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
-import { fetchUsers } from '../userSlice';
-// import { fetchUsers, getUsers } from '../userSlice';
+// import { fetchUsers } from '../userSlice';
+import { fetchUsers, getUsers } from '../userSlice';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-// import DialogContentText from '@mui/material/DialogContentText';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import EditForm from './editForm';
 // import { fetchUsers, addUser, editUser, deleteUser } from '../../actions/userActions';
+
 
 const USERS= [
     {
@@ -36,6 +37,7 @@ const UsersPage = () => {
   const users = useSelector((state) => state.user.users);
 
 
+
   const handleClickOpen = (details) => {
     setOpen(true);
     setUserDetails(details)
@@ -44,6 +46,7 @@ const UsersPage = () => {
   const handleClose = () => {
     setOpen(false);
   };
+  
 
   useEffect(() => {
     dispatch(fetchUsers(USERS));
@@ -97,9 +100,18 @@ const UsersPage = () => {
             <Typography variant="h4" component="h1" gutterBottom>
                 Manage Clerks
             </Typography>
-            <Button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 my-2 border border-gray-400 rounded shadow">
-                Add User
-            </Button>
+            {/* <Button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 my-2 border border-gray-400 rounded shadow"> */}
+            <Button  variant='contained' onClick={handleClickOpen}>Add User</Button>
+            {/* <Dialog>
+              <DialogTitle>User Details</DialogTitle>
+              <DialogContent>
+                <DialogContentText>Testing Testing</DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button variant='contained'>Submit</Button>
+                <Button variant='contained'>Cancel</Button>
+              </DialogActions>
+            </Dialog> */}
       </div>
       <Grid container spacing={3}>
         <Grid item xs={12}>
