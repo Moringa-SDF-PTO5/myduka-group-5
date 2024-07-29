@@ -51,12 +51,12 @@ export const sidebarNav = [
         link:'/stores',
         allowedRoles: ['admin']
     },
-    {
-        title: 'Logout',
-        icon: <LogoutIcon />,
-        link:'/logout',
-        allowedRoles: ['admin','clerk','merchant']
-    }
+    // {
+    //     title: 'Logout',
+    //     icon: <LogoutIcon />,
+    //     link:'/logout',
+    //     allowedRoles: ['admin','clerk','merchant']
+    // }
 
 
 

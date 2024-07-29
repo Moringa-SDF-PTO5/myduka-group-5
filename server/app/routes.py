@@ -1,19 +1,31 @@
 # app/routes.py
 from flask import request, jsonify, make_response, current_app as app
 from app import db
-from app.models import User, Invitation
+from app.models import User, Invitation, Store, Product, SupplyRequest
 import uuid
 from datetime import datetime, timedelta, timezone
-
+from werkzeug.security import check_password_hash
 
 @app.route('/')
 def home():
     welcome_message = {'message': 'Welcome to the myduka inventory db.'}
     return make_response(jsonify(welcome_message), 200)
 
+
+# Login route
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json() or {}
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if user is None or not check_password_hash(user.password_hash, password):
+        return jsonify({"message": "Invalid email or password"}), 401
+
+    return jsonify({"message": "Login successful", "user": user.username}), 200
+
 # User routes
-
-
 @app.route('/users', methods=['GET'])
 def list_users():
     users = User.query.all()
@@ -135,6 +147,187 @@ def delete_user(user_id):
         "data": None
     }), 200
 
+
+# Routes:: Winnie
+
+# Routes for stores
+@app.route('/api/stores', methods=['GET'])
+def get_stores():
+    stores = Store.query.all()
+    stores_data = [store.to_dict() for store in stores]  # Serialize each Store object
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": stores_data
+    }), 200
+
+@app.route('/api/stores/<int:store_id>', methods=['GET'])
+def get_store(store_id):
+    store = Store.query.get(store_id)
+    if not store:
+        return jsonify({
+            "status": "Failed",
+            "message": "Store not found",
+            "data": None
+        }), 404
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": store.to_dict()
+    }), 200
+    
+
+@app.route('/api/stores', methods=['POST'])
+def create_store():
+    data = request.get_json()
+    if 'store_name' not in data or 'location' not in data:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Store_name and location fields are required',
+            'data': None
+        }), 400
+    
+    new_store = Store(store_name=data['store_name'], location=data['location'])
+    db.session.add(new_store)
+    db.session.commit()
+    return jsonify({
+        "status": "success",
+        "message": "Store added successfully",
+        "data": data.to_dict()
+    }), 201
+
+@app.route('/api/stores/<int:store_id>', methods=['PUT'])
+def update_store(store_id):
+    store = Store.query.get(store_id)
+    if not store:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Store not found',
+            'data': None
+        }), 404
+    
+    data = request.get_json()
+    store.store_name = data.get('store_name', store.store_name)
+    store.location = data.get('location', store.location)
+    db.session.commit()
+    return jsonify({
+        "status": "success",
+        "message": "Store updated successfully",
+        "data": data.to_dict()
+    }), 201
+
+@app.route('/api/stores/<int:store_id>', methods=['DELETE'])
+def delete_store(store_id):
+    store = Store.query.get(store_id)
+    if not store:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Store not found',
+            'data': None
+        }), 404
+    
+    db.session.delete(store)
+    db.session.commit()
+    
+    return jsonify({
+        "status": "Success",
+        "message": "Store deleted successfully.",
+        "data": None
+    }), 200
+
+# Routes for products
+@app.route('/api/products', methods=['GET'])
+def get_products():
+    products = Product.query.all()
+    products_data = [product.to_dict() for product in products]
+    
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": products_data
+    }), 201
+
+@app.route('/api/products/<int:product_id>', methods=['GET'])
+def get_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Product not found',
+            'data': None
+        }), 404
+    
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": product.to_dict()
+    }), 200
+
+@app.route('/api/products', methods=['POST'])
+def create_product():
+    data = request.get_json()
+    if 'product_name' not in data or 'buying_price' not in data or 'selling_price' not in data or 'store_id' not in data:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'product_name, buying_price, selling_price, and store_id are required',
+            'data': None
+        }), 400
+    
+    new_product = Product(
+        product_name=data['product_name'],
+        buying_price=data['buying_price'],
+        selling_price=data['selling_price'],
+        store_id=data['store_id']
+    )
+    db.session.add(new_product)
+    db.session.commit()
+    
+    return jsonify({
+        "status": "success",
+        "message": "Product added successfully",
+        "data": data.to_dict()
+    }), 201
+
+@app.route('/api/products/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Product not found',
+            'data': None
+        }), 404
+    
+    data = request.get_json()
+    product.product_name = data.get('product_name', product.product_name)
+    product.buying_price = data.get('buying_price', product.buying_price)
+    product.selling_price = data.get('selling_price', product.selling_price)
+    db.session.commit()
+    
+    return jsonify({
+        "status": "success",
+        "message": "Product updated successfully",
+        "data": data.to_dict()
+    }), 201
+
+@app.route('/api/products/<int:product_id>', methods=['DELETE'])
+def delete_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Product not found',
+            'data': None
+        }), 404
+    
+    db.session.delete(product)
+    db.session.commit()
+    
+    return jsonify({
+        "status": "Success",
+        "message": "Product deleted successfully.",
+        "data": None
+    }), 201
 # Invitation routes
 
 
@@ -250,3 +443,49 @@ def delete_invitation(invitation_id):
         "message": "Invitation deleted successfully.",
         "data": None
     }), 200
+
+# Supply request routes
+@app.route('/api/supply_requests', methods=['GET', 'POST'])
+def supply_requests():
+    if request.method == 'GET':
+        supply_requests = SupplyRequest.query.all()
+        requests_data = [supply_request.to_dict() for supply_request in supply_requests]
+
+        response = {
+            'message': 'Supply requests retrieved successfully.',
+            'status': 'success',
+            'data': requests_data
+        }
+
+        return make_response(response, 200)
+    elif request.method == 'POST':
+        try:
+            data = request.get_json()
+
+            new_request = SupplyRequest(
+                product_id=data['product_id'],
+                number_requested=data['number_requested']
+            )
+
+            db.session.add(new_request)
+            db.session.commit()
+
+            response = {
+                'message': 'Supply request added successfully.',
+                'status': 'success',
+                'data': new_request.to_dict()
+            }
+
+            return make_response(response, 201)
+        except Exception as error:
+            response = {
+                'message': 'Request not added.',
+                'status': 'error',
+                'data': error
+            }
+
+            return make_response(response, 500)
+        
+@app.route('/api/supply_requests/<int:id>', methods=['PUT'])
+def update_supply_request(id):
+    supply_request = SupplyRequest.query.filter_by(id = id).first()

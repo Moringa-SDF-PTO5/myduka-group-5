@@ -1,7 +1,12 @@
 # app/models.py
 from app import db
-from datetime import datetime, timezone
+from datetime import datetime, timezone,timedelta
+# from sqlalchemy.orm import relationship
+from sqlalchemy_serializer import SerializerMixin
 
+
+def get_current_utc():
+    return datetime.now(timezone.utc)
 
 def get_current_utc():
     return datetime.now(timezone.utc)
@@ -47,6 +52,11 @@ class Invitation(db.Model):
     # Foreign key relationship
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
+    # Set expiry date to 72 hours after date invitation was created : Winnie
+    def calculate_expiry_date(self):
+        # Calculate expiry date as 72 hours after created_at
+        self.expiry_date = self.created_at + timedelta(hours=72)
+
     def __init__(self, token, email, expiry_date, user_id, is_used='0'):
         self.token = token
         self.email = email
@@ -67,3 +77,86 @@ class Invitation(db.Model):
             'is_used': self.is_used,
             'user_id': self.user_id
         }
+
+
+# Models : Winnie
+# Edits to Store and Product classes by Barbara - Addition of serialized relationships
+    
+class Store(db.Model, SerializerMixin):
+    __tablename__ = 'stores'
+
+    serialize_rules = ('-products.store',)
+
+    store_id = db.Column(db.Integer, primary_key=True)
+    store_name = db.Column(db.String(50), nullable=False)
+    location = db.Column(db.String(50), nullable=False)
+
+    # I've commented this section out since the return of this instance is now being handled by
+        # SerializerMixin
+    # Converting store object to dictionary
+    # def to_dict(self):
+    #     return {
+    #         'store_id': self.store_id,
+    #         'store_name': self.store_name,
+    #         'location': self.location
+    #     }
+
+    products = db.relationship('Product', back_populates='store')
+    
+    # temporarily commented out until inventory table merged by other team member
+    # inventory = relationship('Inventory', backref='store')
+
+    def __repr__(self):
+        return f'Store(id={self.store_id}, name={self.store_name}, name={self.location})'
+
+class Product(db.Model, SerializerMixin):
+    __tablename__ = 'products'
+
+    serialize_rules = ('-store.products', '-supply_requests.product',)
+
+    product_id = db.Column(db.Integer, primary_key=True)
+    product_name = db.Column(db.String(50), nullable=False)
+    number_received = db.Column(db.Integer, default=0)
+    number_dispatched = db.Column(db.Integer, default=0)
+    is_paid = db.Column(db.Boolean, default=False)
+    buying_price = db.Column(db.Integer, nullable=False)
+    selling_price = db.Column(db.Integer, nullable=False)
+    store_id = db.Column(db.Integer, db.ForeignKey('stores.store_id'), nullable=False)
+
+    # One store can have many products so the product keeps the relationship
+    # This is a more user friendly way of populating the store id part
+    store = db.relationship('Store', back_populates='products')
+
+    # Get the supply requests that this product is a part of
+    supply_requests = db.relationship('SupplyRequest', back_populates='product')
+
+    # I've commented this section out since the return of this instance is now being handled by
+        # SerializerMixin
+    # Converting product object to dictionary
+    # def to_dict(self):
+    #     return {
+    #         'product_id': self.product_id,
+    #         'product_name': self.product_name,
+    #         'number_received': self.number_received,
+    #         'number_dispatched': self.number_dispatched,
+    #         'buying_price': self.buying_price,
+    #         'selling_price': self.selling_price,
+    #         'store_id': self.store_id
+    #     }
+
+    def __repr__(self):
+        return f'Product(id={self.product_id}, product_name={self.product_name} , buying_price={self.buying_price}, selling_price={self.selling_price})'
+
+# Add supply request model - Barbara
+class SupplyRequest(db.Model, SerializerMixin):
+    __tablename__ = 'supply_requests'
+
+    serialize_rules = ('-product.supply_requests',)
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    number_requested = db.Column(db.Integer, nullable=False, default=0)
+    is_approved = db.Column(db.Boolean, default=False)
+
+    # One product, can be in many supply requests, thus this table stores the relationship
+    product = db.relationship('Product', back_populates='supply_requests')
