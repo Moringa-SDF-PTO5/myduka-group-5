@@ -48,6 +48,26 @@ export const getAllSupplyRequests = createAsyncThunk(
     }
 )
 
+//Edit one supply request
+export const editSupplyRequest = createAsyncThunk(
+    'supplyRequests/editOne',
+    async ({ id, supReqData }, thunkAPI) => {
+        try {
+            // console.log(id, supReqData)
+            return await supReqService.editSupplyRequest(id, supReqData)
+        } catch (error) {
+            const message =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString()
+
+            return thunkAPI.rejectWithValue(message)
+        }
+    }
+)
+
 const supReqSlice = createSlice({
     name: 'supplyRequests',
     initialState,
@@ -81,10 +101,23 @@ const supReqSlice = createSlice({
             })
             .addCase(getAllSupplyRequests.fulfilled, (state, action) => {
                 state.isReqLoading = false
-                state.isReqSuccess = true
+                // state.isReqSuccess = true
                 state.supplyRequests = action.payload
             })
             .addCase(getAllSupplyRequests.rejected, (state, action) => {
+                state.isReqLoading = false
+                state.isReqError = true
+                state.reqMessage = action.payload
+            })
+            .addCase(editSupplyRequest.pending, (state) => {
+                state.isReqLoading = true
+            })
+            .addCase(editSupplyRequest.fulfilled, (state, action) => {
+                state.isReqLoading = false
+                state.isReqSuccess = true
+                state.supplyRequest = action.payload
+            })
+            .addCase(editSupplyRequest.rejected, (state, action) => {
                 state.isReqLoading = false
                 state.isReqError = true
                 state.reqMessage = action.payload
