@@ -1,7 +1,7 @@
 # app/routes.py
 from flask import request, jsonify, make_response, current_app as app
 from app import db
-from app.models import User, Invitation, Store, Product
+from app.models import User, Invitation, Store, Product, SupplyRequest
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -226,14 +226,14 @@ def delete_store(store_id):
 # Routes for products
 @app.route('/api/products', methods=['GET'])
 def get_products():
-    products = Product.query.all()
+    products = Product.query.order_by(Product.product_id).all()
     products_data = [product.to_dict() for product in products]
     
     return jsonify({
         "status": "success",
         "message": "success",
         "data": products_data
-    }), 201
+    }), 200
 
 @app.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
@@ -263,6 +263,8 @@ def create_product():
     
     new_product = Product(
         product_name=data['product_name'],
+        number_received=data['number_received'],
+        number_dispatched=data['number_dispatched'],
         buying_price=data['buying_price'],
         selling_price=data['selling_price'],
         store_id=data['store_id']
@@ -273,30 +275,47 @@ def create_product():
     return jsonify({
         "status": "success",
         "message": "Product added successfully",
-        "data": data.to_dict()
+        "data": new_product.to_dict()
     }), 201
 
-@app.route('/api/products/<int:product_id>', methods=['PUT'])
+@app.route('/api/products/<int:product_id>', methods=['PATCH'])
 def update_product(product_id):
     product = Product.query.get(product_id)
+    data = request.get_json()
     if not product:
         return jsonify({
             'status': 'Failed',
             'message': 'Product not found',
             'data': None
         }), 404
+    else:
+        for key in data:
+            setattr(product, key, data[key])
+
+        db.session.add(product)
+        db.session.commit()
+
+        updated_product = product.to_dict()
+
+        response = {
+            'message': 'Product updated successfully.',
+            'status': 'success',
+            'data': updated_product
+        }
+
+        return make_response(response, 200)
     
-    data = request.get_json()
-    product.product_name = data.get('product_name', product.product_name)
-    product.buying_price = data.get('buying_price', product.buying_price)
-    product.selling_price = data.get('selling_price', product.selling_price)
-    db.session.commit()
     
-    return jsonify({
-        "status": "success",
-        "message": "Product updated successfully",
-        "data": data.to_dict()
-    }), 201
+    # product.product_name = data.get('product_name', product.product_name)
+    # product.buying_price = data.get('buying_price', product.buying_price)
+    # product.selling_price = data.get('selling_price', product.selling_price)
+    # db.session.commit()
+    
+    # return jsonify({
+    #     "status": "success",
+    #     "message": "Product updated successfully",
+    #     "data": data.to_dict()
+    # }), 201
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
@@ -431,3 +450,92 @@ def delete_invitation(invitation_id):
         "message": "Invitation deleted successfully.",
         "data": None
     }), 200
+
+# Supply request routes
+@app.route('/api/supply_requests', methods=['GET', 'POST'])
+def supply_requests():
+    if request.method == 'GET':
+        supply_requests = SupplyRequest.query.order_by(SupplyRequest.id).all()
+        requests_data = [supply_request.to_dict() for supply_request in supply_requests]
+
+        response = {
+            'message': 'Supply requests retrieved successfully.',
+            'status': 'success',
+            'data': requests_data
+        }
+
+        return make_response(response, 200)
+    elif request.method == 'POST':
+        try:
+            data = request.get_json()
+
+            new_request = SupplyRequest(
+                product_id=data['product_id'],
+                number_requested=data['number_requested']
+            )
+
+            db.session.add(new_request)
+            db.session.commit()
+
+            response = {
+                'message': 'Supply request added successfully.',
+                'status': 'success',
+                'data': new_request.to_dict()
+            }
+
+            return make_response(response, 201)
+        except Exception as error:
+            response = {
+                'message': 'Request not added.',
+                'status': 'error',
+                'data': error
+            }
+
+            return make_response(response, 500)
+        
+@app.route('/api/supply_requests/<int:id>', methods=['GET', 'PATCH'])
+def one_supply_request(id):
+    supply_request = SupplyRequest.query.filter_by(id = id).first()
+    if supply_request:
+        if request.method == 'GET':
+            response = {
+                'message': 'Supply request retreived succeddfully.',
+                'status': 'success',
+                'data': supply_request.to_dict()
+            }
+
+            return make_response(response, 200)
+        elif request.method == 'PATCH':
+            try:
+                data = request.get_json()
+
+                for key in data:
+                    setattr(supply_request, key, data[key])
+
+                db.session.add(supply_request)
+                db.session.commit()
+
+                updated_supply_request = supply_request.to_dict()
+
+                response = {
+                    'message': 'Supply request updated successfully.',
+                    'status': 'success',
+                    'data': updated_supply_request
+                }
+                return make_response(response, 200)
+            except Exception as error:
+                response = {
+                    'message': 'Supply request approval not edited.',
+                    'status': 'error',
+                    'data': error
+                }
+
+                return make_response(response, 400)
+    else:
+        response = {
+            'message': 'Supply request not found.',
+            'status': 'error',
+            'data': None
+        }
+
+        return make_response(response, 404)
