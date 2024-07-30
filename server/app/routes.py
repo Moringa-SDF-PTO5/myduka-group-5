@@ -19,10 +19,22 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
+    print(f"Received email: {email}, password: {password}")
+
+    if not email or not password:
+        return jsonify({"message": "Email and password are required"}), 400
+
     user = User.query.filter_by(email=email).first()
+
+    if user is None:
+        print("No user found with the provided email")
+    elif not check_password_hash(user.password_hash, password):
+        print("Password check failed")
+
     if user is None or not check_password_hash(user.password_hash, password):
         return jsonify({"message": "Invalid email or password"}), 401
 
+    print(f"User {user.username} logged in successfully")
     return jsonify({"message": "Login successful", "user": user.username}), 200
 
 
