@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { getAllProducts } from '../features/products/productSlice'
@@ -17,6 +17,8 @@ const ProductsPage = () => {
     const { supplyRequest, isReqSuccess } = useSelector(
         (state) => state.supplyRequests
     )
+
+    const inputRef = useRef(null)
     const dispatch = useDispatch()
 
     const requestFormSchema = Yup.object().shape({
@@ -30,9 +32,7 @@ const ProductsPage = () => {
         },
         validationSchema: requestFormSchema,
         onSubmit: (values) => {
-            // console.log(values)
             dispatch(addSupplyRequest(values))
-            // console.log(supplyRequest)
         },
     })
 
@@ -42,12 +42,15 @@ const ProductsPage = () => {
         dispatch(getAllProducts())
     }, [dispatch])
 
+    function focusInput() {
+        inputRef.current.focus()
+    }
+
     if (isLoading) {
         return <h3 className='text-4xl'>Loading...</h3>
     }
 
     if (isReqSuccess) {
-        // console.log(supplyRequest)
         setTimeout(() => {
             dispatch(resetIsReqSuccess())
         }, 3000)
@@ -56,8 +59,16 @@ const ProductsPage = () => {
     return (
         <div>
             <section>
-                <h2 className='text-base font-bold'>Products</h2>
-                <div className='grid grid-cols-5 justify-between items-center gap-x-3 mb-2'>
+                <div className='flex justify-between'>
+                    <h2 className='text-base font-bold'>Products</h2>
+                    <button
+                        className='btn btn-sm bg-edit-blue text-slate-50'
+                        onClick={() => navigate('/addproduct')}
+                    >
+                        Add Product
+                    </button>
+                </div>
+                <div className='grid grid-cols-5 justify-between items-center gap-x-3 my-2'>
                     <div className='flex justify-center items-center font-bold text-black'>
                         ID
                     </div>
@@ -79,6 +90,7 @@ const ProductsPage = () => {
                         <ProductItem
                             key={product.product_id}
                             productItem={product}
+                            focusInput={focusInput}
                         />
                     ))}
                 </div>
@@ -101,6 +113,7 @@ const ProductsPage = () => {
                         name='product_id'
                         value={requestFormik.values.product_id}
                         onChange={requestFormik.handleChange}
+                        ref={inputRef}
                         className='w-1/2 bg-inherit border-2 rounded-sm py-2 focus:outline-none focus:ring-1 focus:ring-black'
                     />
                     {requestFormik.errors.product_id &&

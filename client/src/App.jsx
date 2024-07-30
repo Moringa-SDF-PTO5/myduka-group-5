@@ -5,6 +5,8 @@ import Layout from './Components/Layout.jsx'
 import ProductsPage from './pages/ProductsPage.jsx'
 import Dashboardpage from './features/dashboard/page.jsx'
 import SupplyRequest from './pages/SupplyRequest.jsx'
+import ProductItemPage from './pages/ProductItemPage.jsx'
+import AddProduct from './pages/AddProduct.jsx'
 
 function App() {
     return (
@@ -31,6 +33,14 @@ function App() {
                         <Route
                             path='/supply_requests'
                             element={<SupplyRequest />}
+                        />
+                        <Route
+                            path='/products/:productItemId'
+                            element={<ProductItemPage />}
+                        />
+                        <Route
+                            path='/addproduct'
+                            element={<AddProduct />}
                         />
                     </Route>
                 </Routes>
