@@ -6,6 +6,7 @@ import {
     editOneProduct,
     reset,
 } from '../features/products/productSlice'
+import Spinner from '../Components/Spinner'
 
 function ProductItemPage() {
     const { product, updatedProduct, isLoading, isSuccess } = useSelector(
@@ -69,7 +70,7 @@ function ProductItemPage() {
     }
 
     if (isLoading) {
-        return <h3 className='text-4xl'>Loading...</h3>
+        return <Spinner />
     }
 
     return (
@@ -146,6 +147,13 @@ function ProductItemPage() {
                                 value={numberDispatched}
                                 onChange={handleChange}
                                 className='bg-inherit border-2 rounded-sm py-2 px-1 focus:outline-none focus:ring-1 focus:ring-black'
+                                disabled={
+                                    displayProduct.number_received -
+                                        displayProduct.number_dispatched ===
+                                    0
+                                        ? true
+                                        : false
+                                }
                             />
                         </div>
                         <div className='flex flex-col'>

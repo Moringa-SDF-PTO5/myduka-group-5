@@ -27,10 +27,6 @@ export const getOneProduct = createAsyncThunk(
     'products/getOne',
     async (productItemId, thunkAPI) => {
         try {
-            // console.log(
-            //     'Get one product function called with id:',
-            //     productItemId
-            // )
             return await productService.getOneProduct(productItemId)
         } catch (error) {
             const message =
@@ -50,9 +46,6 @@ export const editOneProduct = createAsyncThunk(
     'products/editOne',
     async ({ productItemId, updateData }, thunkAPI) => {
         try {
-            // console.log('Updated product from slice:')
-            // console.log(productItemId)
-            // console.log(updateData)
             return await productService.editOneProduct(
                 productItemId,
                 updateData
@@ -75,7 +68,6 @@ export const addProduct = createAsyncThunk(
     'products/addOne',
     async (productData, thunkAPI) => {
         try {
-            // console.log(productData)
             return await productService.addProduct(productData)
         } catch (error) {
             const message =

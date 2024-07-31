@@ -7,6 +7,7 @@ import Dashboardpage from './features/dashboard/page.jsx'
 import SupplyRequest from './pages/SupplyRequest.jsx'
 import ProductItemPage from './pages/ProductItemPage.jsx'
 import AddProduct from './pages/AddProduct.jsx'
+import Payments from './pages/Payments.jsx'
 
 function App() {
     return (
@@ -41,6 +42,10 @@ function App() {
                         <Route
                             path='/addproduct'
                             element={<AddProduct />}
+                        />
+                        <Route
+                            path='/payments'
+                            element={<Payments />}
                         />
                     </Route>
                 </Routes>

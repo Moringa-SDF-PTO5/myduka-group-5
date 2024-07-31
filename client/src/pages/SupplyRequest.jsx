@@ -7,9 +7,10 @@ import {
     resetIsReqSuccess,
 } from '../features/supplyRequests/supReqSlice'
 import SupReqItem from '../Components/SupReqItem'
+import Spinner from '../Components/Spinner'
 
 function SupplyRequest() {
-    const { supplyRequests, supplyRequest } = useSelector(
+    const { supplyRequests, supplyRequest, isReqLoading } = useSelector(
         (state) => state.supplyRequests
     )
     const dispatch = useDispatch()
@@ -24,8 +25,6 @@ function SupplyRequest() {
         }
     }, [dispatch])
 
-    // console.log(supplyRequests)
-
     function handleApproval(item) {
         const id = item.id
         const supReqData = {
@@ -37,6 +36,10 @@ function SupplyRequest() {
 
         dispatch(editSupplyRequest({ id, supReqData }))
         dispatch(getAllSupplyRequests())
+    }
+
+    if (isReqLoading) {
+        return <Spinner />
     }
 
     return (
