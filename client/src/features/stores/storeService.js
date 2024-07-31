@@ -1,4 +1,4 @@
-const STORES_API = 'https://myduka-api.onrender.com/api/stores'
+const STORES_API = '/api/stores'
 
 //Get all stores
 async function getAllStores() {
