@@ -1,4 +1,4 @@
-const PRODUCTS_API = '/api/products'
+const PRODUCTS_API = 'https://myduka-api.onrender.com/api/products'
 
 //Get all products
 async function getAllProducts() {
