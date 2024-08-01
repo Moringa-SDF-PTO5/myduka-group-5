@@ -53,7 +53,6 @@ export const editSupplyRequest = createAsyncThunk(
     'supplyRequests/editOne',
     async ({ id, supReqData }, thunkAPI) => {
         try {
-            // console.log(id, supReqData)
             return await supReqService.editSupplyRequest(id, supReqData)
         } catch (error) {
             const message =

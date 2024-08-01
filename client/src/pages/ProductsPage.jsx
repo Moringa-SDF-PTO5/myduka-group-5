@@ -9,12 +9,13 @@ import {
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import ProductItem from '../Components/ProductItem'
+import Spinner from '../Components/Spinner'
 
 const ProductsPage = () => {
     const { products, isLoading, isSuccess } = useSelector(
         (state) => state.products
     )
-    const { supplyRequest, isReqSuccess } = useSelector(
+    const { supplyRequest, isReqLoading, isReqSuccess } = useSelector(
         (state) => state.supplyRequests
     )
 
@@ -31,8 +32,9 @@ const ProductsPage = () => {
             number_requested: '',
         },
         validationSchema: requestFormSchema,
-        onSubmit: (values) => {
+        onSubmit: (values, { resetForm }) => {
             dispatch(addSupplyRequest(values))
+            resetForm()
         },
     })
 
@@ -46,8 +48,8 @@ const ProductsPage = () => {
         inputRef.current.focus()
     }
 
-    if (isLoading) {
-        return <h3 className='text-4xl'>Loading...</h3>
+    if (isLoading || isReqLoading) {
+        return <Spinner />
     }
 
     if (isReqSuccess) {
@@ -57,16 +59,24 @@ const ProductsPage = () => {
     }
 
     return (
-        <div>
+        <>
             <section>
                 <div className='flex justify-between'>
                     <h2 className='text-base font-bold'>Products</h2>
-                    <button
-                        className='btn btn-sm bg-edit-blue text-slate-50'
-                        onClick={() => navigate('/addproduct')}
-                    >
-                        Add Product
-                    </button>
+                    <div className='flex justify-end gap-x-3'>
+                        <button
+                            className='btn btn-sm bg-edit-blue text-slate-50'
+                            onClick={() => navigate('/addproduct')}
+                        >
+                            Add Product
+                        </button>
+                        <button
+                            className='btn btn-sm bg-edit-blue text-slate-50'
+                            onClick={() => navigate('/payments')}
+                        >
+                            Manage Payments
+                        </button>
+                    </div>
                 </div>
                 <div className='grid grid-cols-5 justify-between items-center gap-x-3 my-2'>
                     <div className='flex justify-center items-center font-bold text-black'>
@@ -150,9 +160,11 @@ const ProductsPage = () => {
                     </button>
                 </form>
                 {isReqSuccess ? (
-                    <p className='text-white bg-edit-blue w-2/5 rounded-sm mt-2'>
-                        Request added.
-                    </p>
+                    <div className='flex justify-center items-center'>
+                        <p className='text-white bg-edit-blue w-2/5 rounded-sm mt-2'>
+                            Request added.
+                        </p>
+                    </div>
                 ) : null}
                 <div className='flex justify-center items-center mt-2'>
                     <button
@@ -164,7 +176,7 @@ const ProductsPage = () => {
                     </button>
                 </div>
             </section>
-        </div>
+        </>
     )
 }
 
