@@ -6,6 +6,7 @@ const initialState = {
     product: {},
     updatedProduct: {},
     newProduct: {},
+    productsCount: 0,
     isLoading: false,
     isSuccess: false,
     newProductSuccess: false,
@@ -82,6 +83,11 @@ export const addProduct = createAsyncThunk(
     }
 )
 
+//Get the count of products
+export const getProductsCount = createAsyncThunk('products/count', async () => {
+    return await productService.getProductsCount()
+})
+
 const productSlice = createSlice({
     name: 'products',
     initialState,
@@ -138,6 +144,18 @@ const productSlice = createSlice({
                 state.newProduct = action.payload
             })
             .addCase(addProduct.rejected, (state, action) => {
+                state.isLoading = false
+                state.isError = true
+                state.message = action.payload
+            })
+            .addCase(getProductsCount.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(getProductsCount.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.productsCount = action.payload
+            })
+            .addCase(getProductsCount.rejected, (state, action) => {
                 state.isLoading = false
                 state.isError = true
                 state.message = action.payload

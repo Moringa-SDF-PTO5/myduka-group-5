@@ -149,6 +149,18 @@ def get_stores():
         "data": stores_data
     }), 200
 
+@app.route('/api/stores/count', methods=['GET'])
+def count_stores():
+    stores_count = Store.query.count()
+
+    response = {
+        'message': 'Stores counted.',
+        'status': 'success',
+        'data': stores_count
+    }
+
+    return make_response(response, 200)
+
 @app.route('/api/stores/<int:store_id>', methods=['GET'])
 def get_store(store_id):
     store = Store.query.get(store_id)
@@ -277,6 +289,18 @@ def create_product():
         "message": "Product added successfully",
         "data": new_product.to_dict()
     }), 201
+
+@app.route('/api/products/count', methods=['GET'])
+def count_products():
+    products_count = Product.query.count()
+
+    response = {
+        'message': 'Products counted.',
+        'status': 'success',
+        'data': products_count
+    }
+
+    return make_response(response, 200)
 
 @app.route('/api/products/<int:product_id>', methods=['PATCH'])
 def update_product(product_id):
