@@ -96,3 +96,8 @@ dmypy.json
 
 # Ignore the virtual environment folder
 venv/
+
+# .gitignore
+
+# Ignore the virtual environment folder
+venv/
