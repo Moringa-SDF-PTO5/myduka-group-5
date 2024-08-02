@@ -8,6 +8,7 @@ import SupplyRequest from './pages/SupplyRequest.jsx'
 import ProductItemPage from './pages/ProductItemPage.jsx'
 import AddProduct from './pages/AddProduct.jsx'
 import Payments from './pages/Payments.jsx'
+import UsersPage from './features/users/page.jsx'
 
 function App() {
     return (
@@ -30,6 +31,10 @@ function App() {
                         <Route
                             path='/products'
                             element={<ProductsPage />}
+                        />
+                          <Route
+                            path='/users'
+                            element={<UsersPage />}
                         />
                         <Route
                             path='/supply_requests'

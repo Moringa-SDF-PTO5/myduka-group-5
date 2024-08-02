@@ -4,16 +4,41 @@ from app import db
 from app.models import User, Invitation, Store, Product, SupplyRequest, Inventory
 import uuid
 from datetime import datetime, timedelta, timezone
-
+from werkzeug.security import check_password_hash
 
 @app.route('/')
 def home():
     welcome_message = {'message': 'Welcome to the myduka inventory db.'}
     return make_response(jsonify(welcome_message), 200)
 
+
+# Login route
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json() or {}
+    email = data.get('email')
+    password = data.get('password')
+
+    print(f"Received email: {email}, password: {password}")
+
+    if not email or not password:
+        return jsonify({"message": "Email and password are required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if user is None:
+        print("No user found with the provided email")
+    elif not check_password_hash(user.password_hash, password):
+        print("Password check failed")
+
+    if user is None or not check_password_hash(user.password_hash, password):
+        return jsonify({"message": "Invalid email or password"}), 401
+
+    print(f"User {user.username} logged in successfully")
+    return jsonify({"message": "Login successful", "user": user.username}), 200
+
+
 # User routes
-
-
 @app.route('/users', methods=['GET'])
 def list_users():
     users = User.query.all()
