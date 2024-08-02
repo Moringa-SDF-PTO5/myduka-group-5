@@ -1,4 +1,3 @@
-# app/routes.py
 from flask import request, jsonify, make_response, current_app as app
 from app import db
 from app.models import User, Invitation, Store, Product, Inventory, SupplyRequest
@@ -13,7 +12,6 @@ def home():
 
 # User routes
 
-
 @app.route('/users', methods=['GET'])
 def list_users():
     users = User.query.all()
@@ -24,10 +22,8 @@ def list_users():
         "data": users_data
     }), 200
 
-
 @app.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
-
     user = User.query.get(user_id)
     if not user:
         return jsonify({
@@ -41,7 +37,6 @@ def get_user(user_id):
         "message": "User retrieved successfully.",
         "data": user.to_dict()
     }), 200
-
 
 @app.route('/users', methods=['POST'])
 def create_user():
@@ -163,7 +158,7 @@ def get_store(store_id):
         "message": "success",
         "data": store.to_dict()
     }), 200
-    
+
 
 @app.route('/api/stores', methods=['POST'])
 def create_store():
@@ -174,14 +169,14 @@ def create_store():
             'message': 'Store_name and location fields are required',
             'data': None
         }), 400
-    
+
     new_store = Store(store_name=data['store_name'], location=data['location'])
     db.session.add(new_store)
     db.session.commit()
     return jsonify({
         "status": "success",
         "message": "Store added successfully",
-        "data": data.to_dict()
+        "data": new_store.to_dict()
     }), 201
 
 @app.route('/api/stores/<int:store_id>', methods=['PUT'])
@@ -193,7 +188,7 @@ def update_store(store_id):
             'message': 'Store not found',
             'data': None
         }), 404
-    
+
     data = request.get_json()
     store.store_name = data.get('store_name', store.store_name)
     store.location = data.get('location', store.location)
@@ -201,8 +196,8 @@ def update_store(store_id):
     return jsonify({
         "status": "success",
         "message": "Store updated successfully",
-        "data": data.to_dict()
-    }), 201
+        "data": store.to_dict()
+    }), 200
 
 @app.route('/api/stores/<int:store_id>', methods=['DELETE'])
 def delete_store(store_id):
@@ -213,10 +208,10 @@ def delete_store(store_id):
             'message': 'Store not found',
             'data': None
         }), 404
-    
+
     db.session.delete(store)
     db.session.commit()
-    
+
     return jsonify({
         "status": "Success",
         "message": "Store deleted successfully.",
@@ -226,14 +221,14 @@ def delete_store(store_id):
 # Routes for products
 @app.route('/api/products', methods=['GET'])
 def get_products():
-    products = Product.query.all()
+    products = Product.query.order_by(Product.product_id).all()
     products_data = [product.to_dict() for product in products]
-    
+
     return jsonify({
         "status": "success",
         "message": "success",
         "data": products_data
-    }), 201
+    }), 200
 
 @app.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
@@ -244,7 +239,7 @@ def get_product(product_id):
             'message': 'Product not found',
             'data': None
         }), 404
-    
+
     return jsonify({
         "status": "success",
         "message": "success",
@@ -260,43 +255,50 @@ def create_product():
             'message': 'product_name, buying_price, selling_price, and store_id are required',
             'data': None
         }), 400
-    
+
     new_product = Product(
         product_name=data['product_name'],
+        number_received=data['number_received'],
+        number_dispatched=data['number_dispatched'],
         buying_price=data['buying_price'],
         selling_price=data['selling_price'],
         store_id=data['store_id']
     )
     db.session.add(new_product)
     db.session.commit()
-    
+
     return jsonify({
         "status": "success",
         "message": "Product added successfully",
-        "data": data.to_dict()
+        "data": new_product.to_dict()
     }), 201
 
-@app.route('/api/products/<int:product_id>', methods=['PUT'])
+@app.route('/api/products/<int:product_id>', methods=['PATCH'])
 def update_product(product_id):
     product = Product.query.get(product_id)
+    data = request.get_json()
     if not product:
         return jsonify({
             'status': 'Failed',
             'message': 'Product not found',
             'data': None
         }), 404
-    
-    data = request.get_json()
-    product.product_name = data.get('product_name', product.product_name)
-    product.buying_price = data.get('buying_price', product.buying_price)
-    product.selling_price = data.get('selling_price', product.selling_price)
-    db.session.commit()
-    
-    return jsonify({
-        "status": "success",
-        "message": "Product updated successfully",
-        "data": data.to_dict()
-    }), 201
+    else:
+        for key in data:
+            setattr(product, key, data[key])
+
+        db.session.add(product)
+        db.session.commit()
+
+        updated_product = product.to_dict()
+
+        response = {
+            'message': 'Product updated successfully.',
+            'status': 'success',
+            'data': updated_product
+        }
+
+        return make_response(response, 200)
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
@@ -307,246 +309,235 @@ def delete_product(product_id):
             'message': 'Product not found',
             'data': None
         }), 404
-    
+
     db.session.delete(product)
     db.session.commit()
-    
+
     return jsonify({
         "status": "Success",
         "message": "Product deleted successfully.",
         "data": None
-    }), 201
-# Invitation routes
+    }), 200
 
+@app.route('/api/products/filter', methods=['GET'])
+def filter_products():
+    product_name = request.args.get('product_name')
+    buying_price = request.args.get('buying_price')
+    selling_price = request.args.get('selling_price')
+    store_id = request.args.get('store_id')
 
-@app.route('/invitations', methods=['GET'])
-def list_invitations():
-    invitations = Invitation.query.all()
-    invitations_data = [invitation.to_dict() for invitation in invitations]
+    query = Product.query
+
+    if product_name:
+        query = query.filter(Product.product_name.like(f'%{product_name}%'))
+    if buying_price:
+        query = query.filter_by(buying_price=buying_price)
+    if selling_price:
+        query = query.filter_by(selling_price=selling_price)
+    if store_id:
+        query = query.filter_by(store_id=store_id)
+
+    products = query.all()
+    products_data = [product.to_dict() for product in products]
+
     return jsonify({
         "status": "success",
-        "message": "listed all invitations",
-        "data": invitations_data
+        "message": "success",
+        "data": products_data
     }), 200
 
+# Inventory Routes
+@app.route('/api/inventory', methods=['GET'])
+def get_inventory():
+    inventory_items = Inventory.query.all()
+    inventory_data = [item.to_dict() for item in inventory_items]
 
-@app.route('/invitations/<int:invitation_id>', methods=['GET'])
-def get_invitation(invitation_id):
-    # Retrieve the invitation by ID
-    invitation = Invitation.query.get(invitation_id)
-    if not invitation:
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": inventory_data
+    }), 200
+
+@app.route('/api/inventory/<int:inventory_id>', methods=['GET'])
+def get_inventory_item(inventory_id):
+    inventory_item = Inventory.query.get(inventory_id)
+    if not inventory_item:
         return jsonify({
             "status": "Failed",
-            "message": "Invitation not found.",
+            "message": "Inventory item not found",
             "data": None
         }), 404
 
     return jsonify({
-        "status": "Success",
-        "message": "Invitation retrieved successfully.",
-        "data": invitation.to_dict()
+        "status": "success",
+        "message": "success",
+        "data": inventory_item.to_dict()
     }), 200
 
 
-@app.route('/invitations', methods=['POST'])
-def create_invitation():
+@app.route('/api/inventory', methods=['POST'])
+def create_inventory_item():
     data = request.get_json()
-    email = data.get('email')
-    user_id = data.get('user_id')
-
-    if not email or not user_id:
+    if 'product_id' not in data or 'quantity' not in data:
         return jsonify({
-            "status": "Failed",
-            "message": "Email and user_id are required.",
-            "data": None
+            'status': 'Failed',
+            'message': 'product_id and quantity are required',
+            'data': None
         }), 400
 
-    token = str(uuid.uuid4())
-    expiry_date = datetime.now(timezone.utc) + timedelta(days=7)
-
-    new_invitation = Invitation(
-        token=token,
-        email=email,
-        expiry_date=expiry_date,
-        user_id=user_id
+    new_inventory_item = Inventory(
+        product_id=data['product_id'],
+        quantity=data['quantity']
     )
+    db.session.add(new_inventory_item)
+    db.session.commit()
 
-    try:
-        db.session.add(new_invitation)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            "status": "Failed",
-            "message": "An error occurred while adding the invitation.",
-            "data": str(e)
-        }), 500
 
     return jsonify({
-        "status": "Success",
-        "message": "Invitation created successfully.",
-        "data": new_invitation.to_dict()
+        "status": "success",
+        "message": "Inventory item added successfully",
+        "data": new_inventory_item.to_dict()
     }), 201
 
-
-@app.route('/invitations/<int:invitation_id>', methods=['PUT'])
-def update_invitation(invitation_id):
-    invitation = Invitation.query.get(invitation_id)
-    if not invitation:
+@app.route('/api/inventory/<int:inventory_id>', methods=['PATCH'])
+def update_inventory_item(inventory_id):
+    inventory_item = Inventory.query.get(inventory_id)
+    data = request.get_json()
+    if not inventory_item:
         return jsonify({
-            "status": "Failed",
-            "message": "Invitation not found.",
-            "data": None
+            'status': 'Failed',
+            'message': 'Inventory item not found',
+            'data': None
         }), 404
 
-    data = request.get_json()
-    invitation.token = data.get('token', invitation.token)
-    invitation.email = data.get('email', invitation.email)
-    invitation.expiry_date = data.get('expiry_date', invitation.expiry_date)
-    invitation.is_used = data.get('is_used', invitation.is_used)
+    if 'product_id' in data:
+        inventory_item.product_id = data['product_id']
+    if 'quantity' in data:
+        inventory_item.quantity = data['quantity']
 
     db.session.commit()
+
     return jsonify({
-        "status": "Success",
-        "message": "Invitation updated successfully.",
-        "data": invitation.to_dict()
+        "status": "success",
+        "message": "Inventory item updated successfully",
+        "data": inventory_item.to_dict()
     }), 200
 
-
-@app.route('/invitations/<int:invitation_id>', methods=['DELETE'])
-def delete_invitation(invitation_id):
-    invitation = Invitation.query.get(invitation_id)
-    if not invitation:
+@app.route('/api/inventory/<int:inventory_id>', methods=['DELETE'])
+def delete_inventory_item(inventory_id):
+    inventory_item = Inventory.query.get(inventory_id)
+    if not inventory_item:
         return jsonify({
-            "status": "Failed",
-            "message": "Invitation not found.",
-            "data": None
+            'status': 'Failed',
+            'message': 'Inventory item not found',
+            'data': None
         }), 404
 
-    db.session.delete(invitation)
+    db.session.delete(inventory_item)
     db.session.commit()
 
     return jsonify({
         "status": "Success",
-        "message": "Invitation deleted successfully.",
+        "message": "Inventory item deleted successfully.",
         "data": None
     }), 200
 
-#Routes Kantai
-
-# Inventory Routes
-
-def format_response(status, message, data=None):
-    return {
-        "status": status,
-        "message": message,
-        "data": data
-    }
-
-@app.route('/inventory', methods=['GET'])
-def get_all_inventory():
-    inventory = Inventory.query.all()
-    result = [item.to_dict() for item in inventory]
-    return jsonify(format_response("Success", "Inventory items retrieved successfully.", result)), 200
-
-@app.route('/inventory/<int:inventory_id>', methods=['GET'])
-def get_inventory(inventory_id):
-    item = Inventory.query.get_or_404(inventory_id)
-    return jsonify(format_response("Success", "Inventory item retrieved successfully.", item.to_dict())), 200
-
-@app.route('/inventory', methods=['POST'])
-def create_inventory():
-    data = request.get_json()
-    try:
-        new_inventory = Inventory(
-            product_id=data['product_id'],
-            store_id=data['store_id'],
-            quantity_received=data['quantity_received'],
-            quantity_in_stock=data['quantity_in_stock'],
-            quantity_spoilt=data['quantity_spoilt'],
-            payment_status=data['payment_status']
-        )
-        db.session.add(new_inventory)
-        db.session.commit()
-        return jsonify(format_response("Success", "New inventory item created!", new_inventory.to_dict())), 201
-    except KeyError as e:
-        return jsonify(format_response("Failed", f"Missing field {str(e)}.", None)), 400
-    except Exception as e:
-        return jsonify(format_response("Failed", str(e), None)), 400
-
-@app.route('/inventory/<int:inventory_id>', methods=['PUT'])
-def update_inventory(inventory_id):
-    data = request.get_json()
-    item = Inventory.query.get_or_404(inventory_id)
-    try:
-        item.product_id = data['product_id']
-        item.store_id = data['store_id']
-        item.quantity_received = data['quantity_received']
-        item.quantity_in_stock = data['quantity_in_stock']
-        item.quantity_spoilt = data['quantity_spoilt']
-        item.payment_status = data['payment_status']
-        db.session.commit()
-        return jsonify(format_response("Success", "Inventory item updated!", item.to_dict())), 200
-    except KeyError as e:
-        return jsonify(format_response("Failed", f"Missing field {str(e)}.", None)), 400
-    except Exception as e:
-        return jsonify(format_response("Failed", str(e), None)), 400
-
-@app.route('/inventory/<int:inventory_id>', methods=['DELETE'])
-def delete_inventory(inventory_id):
-    item = Inventory.query.get_or_404(inventory_id)
-    db.session.delete(item)
-    db.session.commit()
-    return jsonify(format_response("Success", "Inventory item deleted!")), 200
 # Supply Request Routes
+@app.route('/api/supply-requests', methods=['GET'])
+def get_supply_requests():
+    supply_requests = SupplyRequest.query.all()
+    supply_requests_data = [request.to_dict() for request in supply_requests]
 
-@app.route('/supply_requests', methods=['GET'])
-def get_all_supply_requests():
-    requests = SupplyRequest.query.all()
-    result = [req.to_dict() for req in requests]
-    return jsonify(format_response("Success", "Supply requests retrieved successfully.", result)), 200
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": supply_requests_data
+    }), 200
 
-@app.route('/supply_requests/<int:request_id>', methods=['GET'])
-def get_supply_request(request_id):
-    req = SupplyRequest.query.get_or_404(request_id)
-    return jsonify(format_response("Success", "Supply request retrieved successfully.", req.to_dict())), 200
+@app.route('/api/supply-requests/<int:supply_request_id>', methods=['GET'])
+def get_supply_request(supply_request_id):
+    supply_request = SupplyRequest.query.get(supply_request_id)
+    if not supply_request:
+        return jsonify({
+            "status": "Failed",
+            "message": "Supply request not found",
+            "data": None
+        }), 404
 
-@app.route('/supply_requests', methods=['POST'])
+    return jsonify({
+        "status": "success",
+        "message": "success",
+        "data": supply_request.to_dict()
+    }), 200
+
+@app.route('/api/supply-requests', methods=['POST'])
 def create_supply_request():
     data = request.get_json()
-    try:
-        new_request = SupplyRequest(
-            inventory_id=data['inventory_id'],
-            user_id=data['user_id'],
-            status=data.get('status', 'pending')
-        )
-        db.session.add(new_request)
-        db.session.commit()
-        return jsonify(format_response("Success", "New supply request created!", new_request.to_dict())), 201
-    except KeyError as e:
-        return jsonify(format_response("Failed", f"Missing field {str(e)}.", None)), 400
-    except Exception as e:
-        return jsonify(format_response("Failed", str(e), None)), 400
+    if 'product_id' not in data or 'quantity' not in data or 'request_date' not in data:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'product_id, quantity, and request_date are required',
+            'data': None
+        }), 400
 
-@app.route('/supply_requests/<int:request_id>', methods=['PUT'])
-def update_supply_request(request_id):
-    data = request.get_json()
-    req = SupplyRequest.query.get_or_404(request_id)
-    try:
-        req.inventory_id = data['inventory_id']
-        req.user_id = data['user_id']
-        req.request_date = data.get('request_date', req.request_date)
-        req.status = data['status']
-        db.session.commit()
-        return jsonify(format_response("Success", "Supply request updated!", req.to_dict())), 200
-    except KeyError as e:
-        return jsonify(format_response("Failed", f"Missing field {str(e)}.", None)), 400
-    except Exception as e:
-        return jsonify(format_response("Failed", str(e), None)), 400
-
-@app.route('/supply_requests/<int:request_id>', methods=['DELETE'])
-def delete_supply_request(request_id):
-    req = SupplyRequest.query.get_or_404(request_id)
-    db.session.delete(req)
+    new_supply_request = SupplyRequest(
+        product_id=data['product_id'],
+        quantity=data['quantity'],
+        request_date=datetime.strptime(data['request_date'], '%Y-%m-%d')
+    )
+    db.session.add(new_supply_request)
     db.session.commit()
-    return jsonify(format_response("Success", "Supply request deleted!")), 200
+
+    return jsonify({
+        "status": "success",
+        "message": "Supply request added successfully",
+        "data": new_supply_request.to_dict()
+    }), 201
+
+@app.route('/api/supply-requests/<int:supply_request_id>', methods=['PATCH'])
+def update_supply_request(supply_request_id):
+    supply_request = SupplyRequest.query.get(supply_request_id)
+    data = request.get_json()
+    if not supply_request:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Supply request not found',
+            'data': None
+        }), 404
+
+    if 'product_id' in data:
+        supply_request.product_id = data['product_id']
+    if 'quantity' in data:
+        supply_request.quantity = data['quantity']
+    if 'request_date' in data:
+        supply_request.request_date = datetime.strptime(data['request_date'], '%Y-%m-%d')
+
+    db.session.commit()
+
+    return jsonify({
+        "status": "success",
+        "message": "Supply request updated successfully",
+        "data": supply_request.to_dict()
+    }), 200
+
+@app.route('/api/supply-requests/<int:supply_request_id>', methods=['DELETE'])
+def delete_supply_request(supply_request_id):
+    supply_request = SupplyRequest.query.get(supply_request_id)
+    if not supply_request:
+        return jsonify({
+            'status': 'Failed',
+            'message': 'Supply request not found',
+            'data': None
+        }), 404
+
+    db.session.delete(supply_request)
+    db.session.commit()
+
+    return jsonify({
+        "status": "Success",
+        "message": "Supply request deleted successfully.",
+        "data": None
+    }), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -128,6 +128,14 @@ class Product(db.Model):
 
 #Models: Kantai 
 
+# Merged Models
+
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+# Inventory Model
 class Inventory(db.Model):
     __tablename__ = 'inventory'
     inventory_id = db.Column(db.Integer, primary_key=True)
@@ -154,13 +162,20 @@ class Inventory(db.Model):
     def __repr__(self):
         return f'<Inventory {self.inventory_id}>'
 
+# SupplyRequest Model
 class SupplyRequest(db.Model):
     __tablename__ = 'supply_requests'
+    
     request_id = db.Column(db.Integer, primary_key=True)
     inventory_id = db.Column(db.Integer, db.ForeignKey('inventory.inventory_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     request_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(10), default='pending')
+    number_requested = db.Column(db.Integer, nullable=False, default=0)
+    is_approved = db.Column(db.Boolean, default=False)
+
+    inventory = db.relationship('Inventory', backref='supply_requests')
+    user = db.relationship('User', backref='supply_requests')
 
     def to_dict(self):
         return {
@@ -168,7 +183,9 @@ class SupplyRequest(db.Model):
             'inventory_id': self.inventory_id,
             'user_id': self.user_id,
             'request_date': self.request_date,
-            'status': self.status
+            'status': self.status,
+            'number_requested': self.number_requested,
+            'is_approved': self.is_approved
         }
     
     def __repr__(self):
