@@ -32,6 +32,7 @@ const USERS= [
 
 const UsersPage = () => {
   const [open, setOpen] = React.useState(false);
+  const [isEdit, setIsEdit] = React.useState(false);
   const [userDetails,setUserDetails] = React.useState()
   const dispatch = useDispatch();
   const users = useSelector((state) => state.user.users);
@@ -40,6 +41,7 @@ const UsersPage = () => {
 
   const handleClickOpen = (details) => {
     setOpen(true);
+    setIsEdit(true);
     setUserDetails(details)
   };
 
@@ -101,7 +103,9 @@ const UsersPage = () => {
                 Manage Clerks
             </Typography>
             {/* <Button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 my-2 border border-gray-400 rounded shadow"> */}
-            <Button  variant='contained' onClick={handleClickOpen}>Add User</Button>
+            <Button  variant='contained' onClick={() => {
+              setOpen(true)
+            }}>Add User</Button>
             {/* <Dialog>
               <DialogTitle>User Details</DialogTitle>
               <DialogContent>
@@ -130,9 +134,9 @@ const UsersPage = () => {
         open={open}
         onClose={handleClose}
       >
-        <DialogTitle>Edit User</DialogTitle>
+        <DialogTitle>{isEdit ? 'Edit User' : 'Add User'}</DialogTitle>
         <DialogContent>      
-            <EditForm userDetails={userDetails}/>   
+            <EditForm userDetails={userDetails} onClose={handleClose} isEdit={isEdit} onSetEdit={setIsEdit}/>   
         </DialogContent>
       </Dialog>
     </Container>

@@ -22,6 +22,12 @@ export const userSlice = createSlice({
         fetchUsers: (state, action) => {
             state.users = action.payload;
         },
+        editUser: (state, action) => {
+            state.users = [...state.users.filter(user => user.id !== action.payload.id), action.payload];
+        },
+        addUser: (state, action) => {
+            state.users = [...state.users, action.payload];
+        },
         extraReducers: (builder) => {
             builder.addCase(getUsers.fulfilled, (state, action) => {
                 state.users = action.payload
@@ -41,7 +47,7 @@ export const getUsers = createAsyncThunk(
     } 
 )
 
-export const {login, logout, fetchUsers} = userSlice.actions
+export const {login, logout, fetchUsers, editUser, addUser} = userSlice.actions
 
 export const selectUser = (state) => state.user.user 
 
