@@ -1,16 +1,20 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ['roboto','sans-serif']
-      }
-    },
-  },
-  plugins: [],
-}
+import { colors } from '@mui/material'
+import daisyui from 'daisyui'
 
+export default {
+    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+    theme: {
+        extend: {
+            fontFamily: {
+                sans: ['roboto', 'sans-serif'],
+            },
+            colors: {
+                'edit-blue': '#2E6C7F',
+                'delete-red': '#E93434',
+                'spinner-bg': '#00000066',
+            },
+        },
+    },
+    plugins: [daisyui],
+}
