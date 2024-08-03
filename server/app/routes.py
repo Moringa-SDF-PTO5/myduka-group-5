@@ -218,8 +218,8 @@ def create_store():
     return jsonify({
         "status": "success",
         "message": "Store added successfully",
-        "data": data.to_dict()
-    }), 201
+        "data": new_store.to_dict()
+    }), 201 
 
 @app.route('/api/stores/<int:store_id>', methods=['PUT'])
 def update_store(store_id):
@@ -353,18 +353,6 @@ def update_product(product_id):
         }
 
         return make_response(response, 200)
-    
-    
-    # product.product_name = data.get('product_name', product.product_name)
-    # product.buying_price = data.get('buying_price', product.buying_price)
-    # product.selling_price = data.get('selling_price', product.selling_price)
-    # db.session.commit()
-    
-    # return jsonify({
-    #     "status": "success",
-    #     "message": "Product updated successfully",
-    #     "data": data.to_dict()
-    # }), 201
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
