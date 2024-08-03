@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 flask = "*"
 flask-sqlalchemy = "*"
-sqlalchemy-serializer = "*"
 flask-cors = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
