@@ -1,4 +1,4 @@
-const SUPPLY_REQUEST_URL = '/api/supply_requests'
+const SUPPLY_REQUEST_URL = 'https://myduka-api.onrender.com/api/supply_requests'
 
 //Add a supply request to the db
 async function addSupplyRequest(supReqData) {

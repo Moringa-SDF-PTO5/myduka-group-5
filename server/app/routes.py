@@ -1,19 +1,44 @@
 # app/routes.py
 from flask import request, jsonify, make_response, current_app as app
 from app import db
-from app.models import User, Invitation, Store, Product, SupplyRequest
+from app.models import User, Invitation, Store, Product, SupplyRequest, Inventory
 import uuid
 from datetime import datetime, timedelta, timezone
-
+from werkzeug.security import check_password_hash
 
 @app.route('/')
 def home():
     welcome_message = {'message': 'Welcome to the myduka inventory db.'}
     return make_response(jsonify(welcome_message), 200)
 
+
+# Login route
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json() or {}
+    email = data.get('email')
+    password = data.get('password')
+
+    print(f"Received email: {email}, password: {password}")
+
+    if not email or not password:
+        return jsonify({"message": "Email and password are required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if user is None:
+        print("No user found with the provided email")
+    elif not check_password_hash(user.password_hash, password):
+        print("Password check failed")
+
+    if user is None or not check_password_hash(user.password_hash, password):
+        return jsonify({"message": "Invalid email or password"}), 401
+
+    print(f"User {user.username} logged in successfully")
+    return jsonify({"message": "Login successful", "user": user.username}), 200
+
+
 # User routes
-
-
 @app.route('/users', methods=['GET'])
 def list_users():
     users = User.query.all()
@@ -149,6 +174,18 @@ def get_stores():
         "data": stores_data
     }), 200
 
+@app.route('/api/stores/count', methods=['GET'])
+def count_stores():
+    stores_count = Store.query.count()
+
+    response = {
+        'message': 'Stores counted.',
+        'status': 'success',
+        'data': stores_count
+    }
+
+    return make_response(response, 200)
+
 @app.route('/api/stores/<int:store_id>', methods=['GET'])
 def get_store(store_id):
     store = Store.query.get(store_id)
@@ -181,8 +218,8 @@ def create_store():
     return jsonify({
         "status": "success",
         "message": "Store added successfully",
-        "data": data.to_dict()
-    }), 201
+        "data": new_store.to_dict()
+    }), 201 
 
 @app.route('/api/stores/<int:store_id>', methods=['PUT'])
 def update_store(store_id):
@@ -278,6 +315,18 @@ def create_product():
         "data": new_product.to_dict()
     }), 201
 
+@app.route('/api/products/count', methods=['GET'])
+def count_products():
+    products_count = Product.query.count()
+
+    response = {
+        'message': 'Products counted.',
+        'status': 'success',
+        'data': products_count
+    }
+
+    return make_response(response, 200)
+
 @app.route('/api/products/<int:product_id>', methods=['PATCH'])
 def update_product(product_id):
     product = Product.query.get(product_id)
@@ -304,18 +353,6 @@ def update_product(product_id):
         }
 
         return make_response(response, 200)
-    
-    
-    # product.product_name = data.get('product_name', product.product_name)
-    # product.buying_price = data.get('buying_price', product.buying_price)
-    # product.selling_price = data.get('selling_price', product.selling_price)
-    # db.session.commit()
-    
-    # return jsonify({
-    #     "status": "success",
-    #     "message": "Product updated successfully",
-    #     "data": data.to_dict()
-    # }), 201
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
@@ -539,3 +576,72 @@ def one_supply_request(id):
         }
 
         return make_response(response, 404)
+    
+
+
+#Routes Kantai
+
+# Inventory Routes
+
+def format_response(status, message, data=None):
+    return {
+        "status": status,
+        "message": message,
+        "data": data
+    }
+
+@app.route('/inventory', methods=['GET'])
+def get_all_inventory():
+    inventory = Inventory.query.all()
+    result = [item.to_dict() for item in inventory]
+    return jsonify(format_response("Success", "Inventory items retrieved successfully.", result)), 200
+
+@app.route('/inventory/<int:inventory_id>', methods=['GET'])
+def get_inventory(inventory_id):
+    item = Inventory.query.get_or_404(inventory_id)
+    return jsonify(format_response("Success", "Inventory item retrieved successfully.", item.to_dict())), 200
+
+@app.route('/inventory', methods=['POST'])
+def create_inventory():
+    data = request.get_json()
+    try:
+        new_inventory = Inventory(
+            product_id=data['product_id'],
+            store_id=data['store_id'],
+            quantity_received=data['quantity_received'],
+            quantity_in_stock=data['quantity_in_stock'],
+            quantity_spoilt=data['quantity_spoilt'],
+            payment_status=data['payment_status']
+        )
+        db.session.add(new_inventory)
+        db.session.commit()
+        return jsonify(format_response("Success", "New inventory item created!", new_inventory.to_dict())), 201
+    except KeyError as e:
+        return jsonify(format_response("Failed", f"Missing field {str(e)}.", None)), 400
+    except Exception as e:
+        return jsonify(format_response("Failed", str(e), None)), 400
+
+@app.route('/inventory/<int:inventory_id>', methods=['PUT'])
+def update_inventory(inventory_id):
+    data = request.get_json()
+    item = Inventory.query.get_or_404(inventory_id)
+    try:
+        item.product_id = data['product_id']
+        item.store_id = data['store_id']
+        item.quantity_received = data['quantity_received']
+        item.quantity_in_stock = data['quantity_in_stock']
+        item.quantity_spoilt = data['quantity_spoilt']
+        item.payment_status = data['payment_status']
+        db.session.commit()
+        return jsonify(format_response("Success", "Inventory item updated!", item.to_dict())), 200
+    except KeyError as e:
+        return jsonify(format_response("Failed", f"Missing field {str(e)}.", None)), 400
+    except Exception as e:
+        return jsonify(format_response("Failed", str(e), None)), 400
+
+@app.route('/inventory/<int:inventory_id>', methods=['DELETE'])
+def delete_inventory(inventory_id):
+    item = Inventory.query.get_or_404(inventory_id)
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify(format_response("Success", "Inventory item deleted!")), 200    

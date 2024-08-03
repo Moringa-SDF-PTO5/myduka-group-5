@@ -12,8 +12,9 @@ export default {
             colors: {
                 'edit-blue': '#2E6C7F',
                 'delete-red': '#E93434',
+                'spinner-bg': '#00000066',
             },
         },
     },
-    plugins: [daisyui],
+    plugins: [require('daisyui')],
 }

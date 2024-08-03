@@ -1,4 +1,4 @@
-const PRODUCTS_API = '/api/products'
+const PRODUCTS_API = 'https://myduka-api.onrender.com/api/products'
 
 //Get all products
 async function getAllProducts() {
@@ -60,11 +60,21 @@ async function addProduct(productData) {
     return responseData.data
 }
 
+//Get the count of products
+async function getProductsCount() {
+    const response = await fetch(`${PRODUCTS_API}/count`)
+
+    const responseData = await response.json()
+
+    return responseData.data
+}
+
 const productService = {
     getAllProducts,
     getOneProduct,
     editOneProduct,
     addProduct,
+    getProductsCount,
 }
 
 export default productService

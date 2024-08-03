@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { getAllStores } from '../features/stores/storeSlice'
 import { addProduct, reset } from '../features/products/productSlice'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import Spinner from '../Components/Spinner'
 
 function AddProduct() {
     const { stores } = useSelector((state) => state.stores)
-    const { newProduct, newProductSuccess } = useSelector(
+    const { newProduct, newProductSuccess, isLoading } = useSelector(
         (state) => state.products
     )
     const dispatch = useDispatch()
@@ -37,7 +38,6 @@ function AddProduct() {
         },
         validationSchema: formSchema,
         onSubmit: (values, { resetForm }) => {
-            // console.log(values)
             dispatch(addProduct(values))
             resetForm()
         },
@@ -45,10 +45,6 @@ function AddProduct() {
 
     useEffect(() => {
         dispatch(getAllStores())
-
-        // if (newProductSuccess) {
-        //     console.log(newProduct)
-        // }
 
         return () => {
             dispatch(reset())
@@ -59,6 +55,10 @@ function AddProduct() {
         setTimeout(() => {
             dispatch(reset())
         }, 3000)
+    }
+
+    if (isLoading) {
+        return <Spinner />
     }
 
     return (
@@ -178,17 +178,18 @@ function AddProduct() {
                     <div className='col-span-2 flex justify-center items-center'>
                         <button
                             type='submit'
-                            className='btn btn-sm bg-edit-blue text-slate-50'
-                            // onClick={() => navigate('/products')}
+                            className='btn btn-sm border-none bg-edit-blue text-slate-50'
                         >
                             Add Product
                         </button>
                     </div>
                 </form>
                 {newProductSuccess ? (
-                    <p className='text-white bg-edit-blue w-2/5 rounded-sm mt-2'>
-                        Product added successfully.
-                    </p>
+                    <div className='flex justify-center items-center'>
+                        <p className='text-white bg-edit-blue w-2/5 rounded-sm mt-2'>
+                            Product added successfully.
+                        </p>
+                    </div>
                 ) : null}
             </section>
         </>

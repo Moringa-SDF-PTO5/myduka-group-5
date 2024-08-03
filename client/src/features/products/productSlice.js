@@ -6,6 +6,7 @@ const initialState = {
     product: {},
     updatedProduct: {},
     newProduct: {},
+    productsCount: 0,
     isLoading: false,
     isSuccess: false,
     newProductSuccess: false,
@@ -27,10 +28,6 @@ export const getOneProduct = createAsyncThunk(
     'products/getOne',
     async (productItemId, thunkAPI) => {
         try {
-            // console.log(
-            //     'Get one product function called with id:',
-            //     productItemId
-            // )
             return await productService.getOneProduct(productItemId)
         } catch (error) {
             const message =
@@ -50,9 +47,6 @@ export const editOneProduct = createAsyncThunk(
     'products/editOne',
     async ({ productItemId, updateData }, thunkAPI) => {
         try {
-            // console.log('Updated product from slice:')
-            // console.log(productItemId)
-            // console.log(updateData)
             return await productService.editOneProduct(
                 productItemId,
                 updateData
@@ -75,7 +69,6 @@ export const addProduct = createAsyncThunk(
     'products/addOne',
     async (productData, thunkAPI) => {
         try {
-            // console.log(productData)
             return await productService.addProduct(productData)
         } catch (error) {
             const message =
@@ -89,6 +82,11 @@ export const addProduct = createAsyncThunk(
         }
     }
 )
+
+//Get the count of products
+export const getProductsCount = createAsyncThunk('products/count', async () => {
+    return await productService.getProductsCount()
+})
 
 const productSlice = createSlice({
     name: 'products',
@@ -146,6 +144,18 @@ const productSlice = createSlice({
                 state.newProduct = action.payload
             })
             .addCase(addProduct.rejected, (state, action) => {
+                state.isLoading = false
+                state.isError = true
+                state.message = action.payload
+            })
+            .addCase(getProductsCount.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(getProductsCount.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.productsCount = action.payload
+            })
+            .addCase(getProductsCount.rejected, (state, action) => {
                 state.isLoading = false
                 state.isError = true
                 state.message = action.payload

@@ -3,6 +3,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
 
 function ProductItem({ productItem, focusInput }) {
+    const inStock = productItem.number_received - productItem.number_dispatched
     const navigate = useNavigate()
 
     function viewProduct(productItemId) {
@@ -14,7 +15,11 @@ function ProductItem({ productItem, focusInput }) {
             <div>{productItem.product_id}</div>
             <div>{productItem.product_name}</div>
             <div>
-                {productItem.number_received - productItem.number_dispatched}
+                {inStock <= 10 ? (
+                    <p className='text-delete-red font-bold'>{inStock}</p>
+                ) : (
+                    <p>{inStock}</p>
+                )}
             </div>
             <div>{productItem.store.store_name}</div>
             <div className='flex justify-around'>
