@@ -11,6 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "18": "^0.0.0",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@fontsource/roboto": "^5.0.13",
