@@ -15,7 +15,7 @@ This project is a minimal Web Application built to help with the stock taking an
 
 Inventory management is an integral part of any business and this application aims to help ease the receiving and dispatching of stock in an environment that makes and keeps detailed records of that process. It is built with the business and the application's users in mind. This means that it is very simple and straightforward to use.
 
-Link to powerpoint presentation showcasing the design and development process details: https://docs.google.com/presentation/d/1vDxGSFWQlfWUzI5ijPRc23yRb9cfw7Mr23Zi0C8GwWg/edit?usp=sharing
+[URL](https://docs.google.com/presentation/d/1vDxGSFWQlfWUzI5ijPRc23yRb9cfw7Mr23Zi0C8GwWg/edit?usp=sharing) to powerpoint presentation showcasing the design and development process details. 
 
 ## Features
 
@@ -75,6 +75,8 @@ python3 seed.py
 ```
 
 ### Frontend (React with Vite)
+
+The web application is currently deployed as a Render Web Service on this [link](https://myduka-inventory-manager.onrender.com/).
 
 The frontend of this application is hosted in the _client_ folder in the root directory of this repository.
 
