@@ -15,6 +15,8 @@ This project is a minimal Web Application built to help with the stock taking an
 
 Inventory management is an integral part of any business and this application aims to help ease the receiving and dispatching of stock in an environment that makes and keeps detailed records of that process. It is built with the business and the application's users in mind. This means that it is very simple and straightforward to use.
 
+Link to powerpoint presentation showcasing the design and development process details: https://docs.google.com/presentation/d/1vDxGSFWQlfWUzI5ijPRc23yRb9cfw7Mr23Zi0C8GwWg/edit?usp=sharing
+
 ## Features
 
 -   Secure login and authentication.
